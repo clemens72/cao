@@ -48,7 +48,7 @@ const OrganizationsListPage = async ({
     }
   ]
 
-  const renderRow = (item: Organization) => (
+  const renderRow = (item: OrganizationList) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
