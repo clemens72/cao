@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Agent {
+  id Int @id @default(autoincrement())
+  username String @unique
+  fname String
+  lname String
+  createdAt DateTime @default(now())
+  active Boolean @default(true)
+  contacts Contact[]
+  events Event[]
+  organizations Organization[]
+  products Product[]
+  tasks Task[]
+}
+
+model Contact {
+  id Int @id @default(autoincrement())
+  email String @unique
+  fname String
+  lname String
+  phone String
+  address String
+  organizations Organization[]
+  events Event[]
+  products Product[]
+  agentId Int
+  agent Agent @relation(fields: [agentId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Event {
+  id Int @id @default(autoincrement())
+  name String
+  gross_price Float
+  note String
+  startDate DateTime
+  endDate DateTime
+  contactId Int
+  contact Contact @relation(fields: [contactId], references: [id])
+  products Product[]
+  organizations Organization[]
+  agentId Int
+  agent Agent @relation(fields: [agentId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Organization {
+  id Int @id @default(autoincrement())
+  name String
+  address String
+  note String
+  type OrgType
+  referral String
+  contactId Int
+  contact Contact @relation(fields: [contactId], references: [id])
+  events Event[]
+  agentId Int
+  agent Agent @relation(fields: [agentId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  name String
+  description String
+  category ProductCategory
+  contactId Int
+  contact Contact @relation(fields: [contactId], references: [id])
+  events Event[]
+  agentId Int
+  agent Agent @relation(fields: [agentId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id Int @id @default(autoincrement())
+  name String
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id Int @id @default(autoincrement())
+  note String
+  closed DateTime?
+  complete Boolean @default(false)
+  agentId Int
+  agent Agent @relation(fields: [agentId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+enum ProductCategory {
+  PRODUCTION
+  SERVICE
+  MERCHANDISE
+  ENTERTAINER_MUSIC
+  ENTERTAINER_NON_MUSIC
+}
+
+enum OrgType {
+  AGENCY
+  BANQUET_FACILITY
+  BAR
+  BUSINESS
+  CASINO
+  CHURCH
+  CONCERT_VENUE
+  CONVENTION_CENTER
+  COUNTRY_CLUB
+  EVENT_COMPLEX
+  FESTIVAL_SITE
+  FINE_ARTS_FACILITIES
+  FRATERNAL_ORGANIZATION
+  GOVERNMENT
+  HOSPITAL
+  HOTEL
+  LIBRARY_MUSEUM
+  LIVING_FACILITIES
+  OTHER
+  PARK
+  PRISONS
+  PRIVATE_HOME
+  RECREATION_COMMUNITY_CENTER
+  RESTAURANT
+  RETAIL
+  SCHOOL
+  SPORTS_FACILITY
+  THEATER
+  UNIVERSITIES
+}
