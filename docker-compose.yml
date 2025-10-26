@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/mydb
+      NODE_ENV: development
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    # Optional: wait until db is ready before migrate/start
+    #command: sh -c "npx prisma migrate dev --name init && npx prisma db seed && npm run dev"
+
+volumes:
+  db_data:
