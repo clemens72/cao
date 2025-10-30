@@ -17,16 +17,16 @@ async function main() {
   const agent2 = await prisma.agent.create({
     data: {
       username: "admin2",
-      fname: "Eric",
-      lname: "Clemens"
+      fname: "Tammy",
+      lname: "Walkup"
     },
   });
   
   const agent3 = await prisma.agent.create({
     data: {
       username: "agent3",
-      fname: "Maria",
-      lname: "Santos",
+      fname: "Joshua",
+      lname: "Burch",
       active: false,
     },
   });
@@ -34,8 +34,8 @@ async function main() {
   const agent4 = await prisma.agent.create({
     data: {
       username: "agent4",
-      fname: "David",
-      lname: "Lee",
+      fname: "Eric",
+      lname: "Clemens",
     },
   });
 

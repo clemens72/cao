@@ -3,12 +3,12 @@ import TableSearch from "@/components/TableSearch"
 import Image from "next/image"
 import Table from "@/components/Table"
 import Link from "next/link"
-import FormModel from "@/components/FormModel"
 import { Report } from "@/generated/prisma"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Prisma } from "@/generated/prisma/client"
 import { auth } from "@clerk/nextjs/server"
+import FormContainer from "@/components/FormContainer"
 
 type ReportList = Report
 type SearchParams = { [key: string]: string | string[] | undefined }
@@ -53,8 +53,8 @@ const ReportingListPage = async ({
           </Link>
           {role === "admin" && (
             <>
-              <FormModel table="reporting" type="update" data={item} id={item.id} />
-              <FormModel table="reporting" type="delete" id={item.id} />
+              <FormContainer table="reports" type="update" data={item} />
+              <FormContainer table="reports" type="delete" id={item.id} />
             </>
           )}
         </div>
@@ -103,7 +103,7 @@ const paramsObj = await searchParams
               <Image src="/sort.png" alt="filter" width={14} height={14} />
             </button>
             {role === "admin" && (
-              <FormModel table="reporting" type="create" />
+              <FormContainer table="reports" type="create" />
             )}
           </div>
         </div>

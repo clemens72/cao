@@ -3,12 +3,12 @@ import TableSearch from "@/components/TableSearch"
 import Image from "next/image"
 import Table from "@/components/Table"
 import Link from "next/link"
-import FormModel from "@/components/FormModel"
 import { Contact, Event, Organization } from "@/generated/prisma"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Prisma } from "@/generated/prisma/client"
 import { auth } from "@clerk/nextjs/server"
+import FormContainer from "@/components/FormContainer"
 
 type ContactList = Contact & { organizations: Organization[] } & { events: Event[] }
 type SearchParams = { [key: string]: string | string[] | undefined }
@@ -75,8 +75,8 @@ const ContactsListPage = async ({
           </Link>
           {role === "admin" && (
             <>
-              <FormModel table="contacts" type="update" data={item} id={item.id} />
-              <FormModel table="contacts" type="delete" id={item.id} />
+              <FormContainer table="contacts" type="update" data={item} />
+              <FormContainer table="contacts" type="delete" id={item.id} />
             </>
           )}
         </div>
@@ -132,7 +132,7 @@ const ContactsListPage = async ({
               <Image src="/sort.png" alt="filter" width={14} height={14} />
             </button>
             {role === "admin" && (
-              <FormModel table="contacts" type="create" />
+              <FormContainer table="contacts" type="create" />
             )}
           </div>
         </div>

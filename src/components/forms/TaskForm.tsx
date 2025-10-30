@@ -3,13 +3,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
-import { contactSchema, ContactSchema } from "@/lib/formValidationSchemas"
-import { createContact, updateContact } from "@/lib/actions";
+import { taskSchema, TaskSchema } from "@/lib/formValidationSchemas";
+import { createTask, updateTask } from "@/lib/actions";
 import { Dispatch, SetStateAction, useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
-const ContactForm = ({
+const TaskForm = ({
     type,
     data,
     setOpen,
@@ -25,12 +25,12 @@ const ContactForm = ({
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<ContactSchema>({
-        resolver: zodResolver(contactSchema),
+    } = useForm<TaskSchema>({
+        resolver: zodResolver(taskSchema),
     })
 
     const [state, formAction] = useActionState(
-        type === "create" ? createContact : updateContact,
+        type === "create" ? createTask : updateTask,
         {
             success: false,
             error: false,
@@ -46,19 +46,19 @@ const ContactForm = ({
 
     useEffect(() => {
         if (state.success) {
-            toast("Contact " + (type === "create" ? " created" : " updated") + " successfully!", { type: "success" })
+            toast("Task " + (type === "create" ? " created" : " updated") + " successfully!", { type: "success" })
             setOpen(false);
             router.refresh();
         }
 
     }, [state])
-    
-    const { agents } = relatedData;
+
+    const { contacts, agents } = relatedData;
 
     return (
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
             <h1 className="text-xl font-semibold">
-                {type === "create" ? "New Contact" : "Update Contact"}
+                {type === "create" ? "New Task" : "Update Task"}
             </h1>
             <div className="flex justify-between flex-wrap gap-4">
                 {data && (
@@ -72,37 +72,11 @@ const ContactForm = ({
                     />
                 )}
                 <InputField
-                    label="First Name"
-                    name="fname"
-                    defaultValue={data?.fname}
+                    label="Note"
+                    name="note"
+                    defaultValue={data?.note}
                     register={register}
-                    error={errors?.fname}
-                />
-                <InputField
-                    label="Last Name"
-                    name="lname"
-                    defaultValue={data?.lname}
-                    register={register}
-                    error={errors?.lname}
-                />
-                <InputField
-                    label="Email"
-                    name="email"
-                    defaultValue={data?.email}
-                    register={register}
-                    error={errors?.email}
-                />
-                <InputField
-                    label="Phone"
-                    name="phone"
-                    defaultValue={data?.phone}
-                    register={register}
-                />
-                <InputField
-                    label="Address"
-                    name="address"
-                    defaultValue={data?.address}
-                    register={register}
+                    error={errors?.note}
                 />
                 <div className="flex flex-col gap-2 w-full md:w-1/4">
                     <label className="text-xs text-gray-500">Agent</label>
@@ -136,4 +110,4 @@ const ContactForm = ({
     )
 }
 
-export default ContactForm
+export default TaskForm

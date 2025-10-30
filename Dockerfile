@@ -26,5 +26,7 @@ EXPOSE 3000
 CMD npm run dev
 
 #RUN npx prisma migrate dev --name init
+# docker exec -it my_container sh -c "npx prisma migrate dev --name init"
 
 #RUN npx prisma db seed
+# docker exec -it my_container sh -c "npx prisma db seed"

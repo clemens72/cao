@@ -3,7 +3,7 @@ import TableSearch from "@/components/TableSearch"
 import Image from "next/image"
 import Table from "@/components/Table"
 import Link from "next/link"
-import FormModel from "@/components/FormModel"
+import FormContainer from "@/components/FormContainer"
 import { Product, Contact, Agent, Event } from "@/generated/prisma"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
@@ -81,8 +81,8 @@ const ProductsListPage = async ({
           </Link>
           {role === "admin" && (
             <>
-              <FormModel table="products" type="update" data={item} id={item.id} />
-              <FormModel table="products" type="delete" id={item.id} />
+              <FormContainer table="products" type="update" data={item} />
+              <FormContainer table="products" type="delete" id={item.id} />
             </>
           )}
         </div>
@@ -136,7 +136,7 @@ const paramsObj = await searchParams
               <Image src="/sort.png" alt="filter" width={14} height={14} />
             </button>
             {role === "admin" && (
-              <FormModel table="products" type="create" />
+              <FormContainer table="products" type="create" />
             )}
           </div>
         </div>

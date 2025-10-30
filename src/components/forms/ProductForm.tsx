@@ -3,13 +3,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
-import { organizationSchema, OrganizationSchema } from "@/lib/formValidationSchemas";
-import { createOrganization, updateOrganization } from "@/lib/actions";
+import { productSchema, ProductSchema } from "@/lib/formValidationSchemas";
+import { createProduct, updateProduct } from "@/lib/actions";
 import { Dispatch, SetStateAction, useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
-const OrganizationForm = ({
+const ProductForm = ({
     type,
     data,
     setOpen,
@@ -25,12 +25,12 @@ const OrganizationForm = ({
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<OrganizationSchema>({
-        resolver: zodResolver(organizationSchema),
+    } = useForm<ProductSchema>({
+        resolver: zodResolver(productSchema),
     })
 
     const [state, formAction] = useActionState(
-        type === "create" ? createOrganization : updateOrganization,
+        type === "create" ? createProduct : updateProduct,
         {
             success: false,
             error: false,
@@ -46,7 +46,7 @@ const OrganizationForm = ({
 
     useEffect(() => {
         if (state.success) {
-            toast("Organization " + (type === "create" ? " created" : " updated") + " successfully!", { type: "success" })
+            toast("Product " + (type === "create" ? " created" : " updated") + " successfully!", { type: "success" })
             setOpen(false);
             router.refresh();
         }
@@ -58,7 +58,7 @@ const OrganizationForm = ({
     return (
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>
             <h1 className="text-xl font-semibold">
-                {type === "create" ? "New Organization" : "Update Organization"}
+                {type === "create" ? "New Product" : "Update Product"}
             </h1>
             <div className="flex justify-between flex-wrap gap-4">
                 {data && (
@@ -79,66 +79,31 @@ const OrganizationForm = ({
                     error={errors?.name}
                 />
                 <InputField
-                    label="Address"
-                    name="address"
-                    defaultValue={data?.address}
+                    label="Description"
+                    name="description"
+                    defaultValue={data?.description}
                     register={register}
-                />
-                <InputField
-                    label="Note"
-                    name="note"
-                    defaultValue={data?.note}
-                    register={register}
+                    error={errors?.description}
                 />
                 <div className="flex flex-col gap-2 w-full md:w-1/4">
-                    <label className="text-xs text-gray-500">Type</label>
+                    <label className="text-xs text-gray-500">Category</label>
                     <select
                         className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                        {...register("type")}
-                        defaultValue={data?.type}
+                        {...register("category")}
+                        defaultValue={data?.category}
                     >
-                        <option value="AGENCY">Agency</option>
-                        <option value="BANQUET_FACILITY">Banquet Facility</option>
-                        <option value="BAR">Bar</option>
-                        <option value="BUSINESS">Business</option>
-                        <option value="CASINO">Casino</option>
-                        <option value="CHURCH">Church</option>
-                        <option value="CONCERT_VENUE">Concert Venue</option>
-                        <option value="CONVENTION_CENTER">Convention Center</option>
-                        <option value="COUNTRY_CLUB">Country Club</option>
-                        <option value="EVENT_COMPLEX">Event Complex</option>
-                        <option value="FESTIVAL_SITE">Festival Site</option>
-                        <option value="FINE_ARTS_FACILITIES">Fine Arts Facilities</option>
-                        <option value="FRATERNAL_ORGANIZATION">Fraternal Organization</option>
-                        <option value="GOVERNMENT">Government</option>
-                        <option value="HOSPITAL">Hospital</option>
-                        <option value="HOTEL">Hotel</option>
-                        <option value="LIBRARY_MUSEUM">Library/Museum</option>
-                        <option value="LIVING_FACILITIES">Living Facilities</option>
-                        <option value="OTHER">Other</option>
-                        <option value="PARK">Park</option>
-                        <option value="PRISONS">Prisons</option>
-                        <option value="PRIVATE_HOME">Private Home</option>
-                        <option value="RECREATION_COMMUNITY_CENTER">Recreation/Community Center</option>
-                        <option value="RESTAURANT">Restaurant</option>
-                        <option value="RETAIL">Retail</option>
-                        <option value="SCHOOL">School</option>
-                        <option value="SPORTS_FACILITY">Sports Facility</option>
-                        <option value="THEATER">Theater</option>
-                        <option value="UNIVERSITIES">Universities</option>
+                        <option value="PRODUCTION">Production</option>
+                        <option value="SERVICE">Service</option>
+                        <option value="MERCHANDISE">Merchandise</option>
+                        <option value="ENTERTAINER_MUSIC">Entertainer: Music</option>
+                        <option value="ENTERTAINER_NON_MUSIC">Entertainer: Non-Music</option>
                     </select>
-                    {errors.type?.message && (
+                    {errors.category?.message && (
                         <p className="text-xs text-red-400">
-                            {errors.type.message.toString()}
+                            {errors.category.message.toString()}
                         </p>
                     )}
                 </div>
-                <InputField
-                    label="Referral"
-                    name="referral"
-                    defaultValue={data?.referral}
-                    register={register}
-                />
                 <div className="flex flex-col gap-2 w-full md:w-1/4">
                     <label className="text-xs text-gray-500">Contact</label>
                     <select
@@ -194,4 +159,4 @@ const OrganizationForm = ({
     )
 }
 
-export default OrganizationForm
+export default ProductForm
