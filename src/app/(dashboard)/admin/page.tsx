@@ -13,37 +13,37 @@ import Link from "next/link"
 import { formatDate, getAgentName } from "@/lib/utils";
 
 type TaskList = Task
+type SearchParams = { [key: string]: string | string[] | undefined }
 
 function getFirst(value: string | string[] | undefined) {
   if (!value) return undefined
   return Array.isArray(value) ? value[0] : value
 }
 
-const AdminPage = async ({ 
+const AdminPage = async ({
   searchParams,
 }: {
-  searchParams: { [keys: string]: string | undefined };
+  searchParams: Promise<SearchParams>
 }) => {
-  const resolvedParams = await searchParams;
 
   const { sessionClaims } = await auth()
-    const role = (sessionClaims?.metadata as { role?: string })?.role;
-  
-    const columns = [
-      {
-        header: "Task",
-        accessor: "note",
-      },{
-        header: "Agent",
-        accessor: "agentId",
-      },
-      {
-        header: "Created",
-        accessor: "createdAt",
-      }
-    ]
+  const role = (sessionClaims?.metadata as { role?: string })?.role;
 
-    const renderRow = (item: TaskList) => (
+  const columns = [
+    {
+      header: "Task",
+      accessor: "note",
+    }, {
+      header: "Agent",
+      accessor: "agentId",
+    },
+    {
+      header: "Created",
+      accessor: "createdAt",
+    }
+  ]
+
+  const renderRow = (item: TaskList) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
@@ -69,21 +69,22 @@ const AdminPage = async ({
     </tr>
   )
 
-    const { page, ...queryParams } = resolvedParams
-  
-    const p = getFirst(page) ? parseInt(getFirst(page)!) : 1
-  
-    //URL PARAMS CONDITION
-    const query: Prisma.TaskWhereInput = {}
-  
-    if (queryParams) {
-      const searchValue = getFirst(queryParams.search)
-      if(searchValue) {
-        query.note = { contains: searchValue, mode: "insensitive" }
-      }
-    }
+  const paramsObj = await searchParams
+  const { page, ...queryParams } = paramsObj
 
-    //FETCH DATA
+  const p = getFirst(page) ? parseInt(getFirst(page)!) : 1
+
+  //URL PARAMS CONDITION
+  const query: Prisma.TaskWhereInput = {}
+
+  if (queryParams) {
+    const searchValue = getFirst(queryParams.search)
+    if (searchValue) {
+      query.note = { contains: searchValue, mode: "insensitive" }
+    }
+  }
+
+  //FETCH DATA
   const [data, count] = await prisma.$transaction([
 
     prisma.task.findMany({
@@ -98,41 +99,41 @@ const AdminPage = async ({
     <div className='p-4 flex gap-4 flex-col md:flex-row'>
       {/* LEFT */}
       <div className="w-full lg:w-2/3">
-      {/* USER CARDS */}
+        {/* USER CARDS */}
         <div className="flex gap-4 justify-between flex-wrap">
-          <UserCard type="tasks"/>
-          <UserCard type="events"/>
-          <UserCard type="progress"/>
-          <UserCard type="complete"/>
+          <UserCard type="tasks" />
+          <UserCard type="events" />
+          <UserCard type="progress" />
+          <UserCard type="complete" />
         </div>
-      <div className='bg-white p-4 rounded-md flex-1 m-4 mt-4'>
-      {/* TASKS */}
-      <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">All Tasks</h1>
-        <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch />
-          <div className="flex items-center gap-4 self-end">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lightorange">
-              <Image src="/filter.png" alt="filter" width={14} height={14} />
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lightorange">
-              <Image src="/sort.png" alt="filter" width={14} height={14} />
-            </button>
-            {role === "admin" && (
-              <FormContainer table="tasks" type="create" />
-            )}
-          </div>
+        <div className='bg-white p-4 rounded-md flex-1 m-4 mt-4'>
+          {/* TASKS */}
+          <div className="flex items-center justify-between">
+            <h1 className="hidden md:block text-lg font-semibold">All Tasks</h1>
+            <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+              <TableSearch />
+              <div className="flex items-center gap-4 self-end">
+                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lightorange">
+                  <Image src="/filter.png" alt="filter" width={14} height={14} />
+                </button>
+                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lightorange">
+                  <Image src="/sort.png" alt="filter" width={14} height={14} />
+                </button>
+                {role === "admin" && (
+                  <FormContainer table="tasks" type="create" />
+                )}
+              </div>
+            </div>
           </div>
         </div>
+        {/* LIST */}
+        <Table columns={columns} renderRow={renderRow} data={data} />
+        {/* PAGINATION */}
+        <Pagination page={p} count={count} />
       </div>
-      {/* LIST */}
-      <Table columns={columns} renderRow={renderRow} data={data} />
-      {/* PAGINATION */}
-      <Pagination page={p} count={count} />
-    </div>
       {/* RIGHT */}
       <div className="w-full lg:w-1/3 flex flex-col gap-8">
-        <EventCalendarContainer searchParams={resolvedParams} />
+        <EventCalendarContainer searchParams={searchParams} />
       </div>
     </div>
   )

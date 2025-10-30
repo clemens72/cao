@@ -4,10 +4,10 @@ import Link from "next/link"
 const EventList = async ({ dateParam
 
 }: {
-    dateParam: string | undefined
+    dateParam: string | string[] | undefined
 }) => {
 
-    const date = dateParam ? new Date(dateParam) : new Date()
+    const date = dateParam ? new Date(dateParam as string) : new Date()
 
     const data = await prisma.event.findMany({
         where: {
