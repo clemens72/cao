@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
-import { reportSchema, ReportSchema } from "@/lib/formValidationSchemas"
+import { reportSchema } from "@/lib/formValidationSchemas"
 import { createReport, updateReport } from "@/lib/actions";
 import { Dispatch, SetStateAction, useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -23,7 +23,7 @@ const ReportForm = ({
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<ReportSchema>({
+    } = useForm({
         resolver: zodResolver(reportSchema),
     })
 
@@ -49,7 +49,7 @@ const ReportForm = ({
             router.refresh();
         }
 
-    }, [state])
+    }, [state, router, setOpen, type])
 
     return (
         <form className="flex flex-col gap-8" onSubmit={onSubmit}>

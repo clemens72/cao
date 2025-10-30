@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
-import { eventSchema, EventSchema } from "@/lib/formValidationSchemas";
+import { eventSchema } from "@/lib/formValidationSchemas";
 import { createEvent, updateEvent } from "@/lib/actions";
 import { Dispatch, SetStateAction, useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -25,7 +25,7 @@ const EventForm = ({
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<EventSchema>({
+    } = useForm({
         resolver: zodResolver(eventSchema),
     })
 
@@ -51,7 +51,7 @@ const EventForm = ({
             router.refresh();
         }
 
-    }, [state])
+    }, [state, router, setOpen, type])
 
     const { contacts, agents } = relatedData;
 

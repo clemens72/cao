@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
-import { taskSchema, TaskSchema } from "@/lib/formValidationSchemas";
+import { taskSchema } from "@/lib/formValidationSchemas";
 import { createTask, updateTask } from "@/lib/actions";
 import { Dispatch, SetStateAction, useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -25,7 +25,7 @@ const TaskForm = ({
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<TaskSchema>({
+    } = useForm({
         resolver: zodResolver(taskSchema),
     })
 
@@ -51,7 +51,7 @@ const TaskForm = ({
             router.refresh();
         }
 
-    }, [state])
+    }, [state, router, setOpen, type])
 
     const { contacts, agents } = relatedData;
 

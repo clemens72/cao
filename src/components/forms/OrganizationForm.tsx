@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
-import { organizationSchema, OrganizationSchema } from "@/lib/formValidationSchemas";
+import { organizationSchema } from "@/lib/formValidationSchemas";
 import { createOrganization, updateOrganization } from "@/lib/actions";
 import { Dispatch, SetStateAction, useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -25,7 +25,7 @@ const OrganizationForm = ({
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<OrganizationSchema>({
+    } = useForm({
         resolver: zodResolver(organizationSchema),
     })
 
@@ -51,7 +51,7 @@ const OrganizationForm = ({
             router.refresh();
         }
 
-    }, [state])
+    }, [state, router, setOpen, type])
 
     const { contacts, agents } = relatedData;
 

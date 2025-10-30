@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
-import { contactSchema, ContactSchema } from "@/lib/formValidationSchemas"
+import { contactSchema } from "@/lib/formValidationSchemas"
 import { createContact, updateContact } from "@/lib/actions";
 import { Dispatch, SetStateAction, useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -25,9 +25,9 @@ const ContactForm = ({
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<ContactSchema>({
+    } = useForm({
         resolver: zodResolver(contactSchema),
-    })
+    });
 
     const [state, formAction] = useActionState(
         type === "create" ? createContact : updateContact,
@@ -51,8 +51,8 @@ const ContactForm = ({
             router.refresh();
         }
 
-    }, [state])
-    
+    }, [state, router, setOpen, type])
+
     const { agents } = relatedData;
 
     return (
