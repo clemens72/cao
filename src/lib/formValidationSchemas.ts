@@ -22,6 +22,7 @@ export const eventSchema = z.object({
         .string()
         .min(1, { message: "First name is required." }),
     gross_price: z.coerce.number({ message: "Gross price must be a number!" }),
+    note: z.string().optional(),
     startDate: z.coerce.date({ message: "Start date is required!" }),
     endDate: z.coerce.date({ message: "End date is required!" }),
     contactId: z.coerce.number().min(1, { message: "Contact is required!" }),

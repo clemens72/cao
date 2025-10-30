@@ -9,6 +9,7 @@ import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Prisma } from "@/generated/prisma/client"
 import { auth } from "@clerk/nextjs/server"
 import FormContainer from "@/components/FormContainer"
+import { getAgentName } from "@/lib/utils"
 
 type OrganizationList = Organization & { events: Event[] } & Agent
 type SearchParams = { [key: string]: string | string[] | undefined }
@@ -59,7 +60,7 @@ const OrganizationsListPage = async ({
         </Link>
       </td>
       <td className="hidden md:table-cell">{item.type}</td>
-      <td className="hidden md:table-cell">{item.agentId}</td>
+      <td className="hidden md:table-cell">{getAgentName(item.agentId)}</td>
       <td>
         <div className="flex items-center gap-2">
           <Link href={`/list/organizations/${item.id}`}>

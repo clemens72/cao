@@ -85,6 +85,7 @@ export const createEvent = async (
       data: {
         name: data.name,
         gross_price: data.gross_price,
+        note: data.note,
         startDate: data.startDate,
         endDate: data.endDate,
         contactId: data.contactId,
@@ -110,6 +111,7 @@ export const updateEvent = async (
       data: {
         name: data.name,
         gross_price: data.gross_price,
+        note: data.note,
         startDate: data.startDate,
         endDate: data.endDate,
         contactId: data.contactId,

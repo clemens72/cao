@@ -9,6 +9,7 @@ import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Prisma } from "@/generated/prisma/client"
 import { auth } from "@clerk/nextjs/server"
 import FormContainer from "@/components/FormContainer"
+import { getAgentName } from "@/lib/utils"
 
 type ContactList = Contact & { organizations: Organization[] } & { events: Event[] }
 type SearchParams = { [key: string]: string | string[] | undefined }
@@ -65,7 +66,7 @@ const ContactsListPage = async ({
       </td>
       <td className="hidden md:table-cell">{item.organizations.map(organization => organization.name).join(", ")}</td>
       <td className="hidden md:table-cell">{item.events.map(event => event.name).join(", ")}</td>
-      <td className="hidden md:table-cell">{item.agentId}</td>
+      <td className="hidden md:table-cell">{getAgentName(item.agentId)}</td>
       <td>
         <div className="flex items-center gap-2">
           <Link href={`/list/contacts/${item.id}`}>

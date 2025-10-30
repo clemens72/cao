@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import { productSchema } from "@/lib/formValidationSchemas";
 import { createProduct, updateProduct } from "@/lib/actions";
-import { Dispatch, SetStateAction, useActionState, useEffect } from "react";
+import { Dispatch, SetStateAction, startTransition, useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
@@ -39,8 +39,10 @@ const ProductForm = ({
 
     const onSubmit = handleSubmit(data => {
         console.log(data);
-        formAction(data);
-    })
+        startTransition(() => {
+            formAction(data);
+        });
+    });
 
     const router = useRouter()
 
@@ -109,15 +111,14 @@ const ProductForm = ({
                     <select
                         className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
                         {...register("contactId")}
-                        defaultValue={data?.contactId}
+                        defaultValue={data?.contactId ?? ""}
                     >
+                        <option value="" disabled>
+                            Select a contact
+                        </option>
                         {contacts.map((contact: { id: number; fname: string; lname: string }) => (
-                            <option
-                                value={contact.id}
-                                key={contact.id}
-                                selected={data && contact.id === data.contactId}
-                            >
-                                {contact.fname + " " + contact.lname}
+                            <option value={contact.id} key={contact.id}>
+                                {contact.fname} {contact.lname}
                             </option>
                         ))}
                     </select>
@@ -132,15 +133,14 @@ const ProductForm = ({
                     <select
                         className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
                         {...register("agentId")}
-                        defaultValue={data?.agentId}
+                        defaultValue={data?.agentId ?? ""}
                     >
+                        <option value="" disabled>
+                            Select an agent
+                        </option>
                         {agents.map((agent: { id: number; fname: string; lname: string }) => (
-                            <option
-                                value={agent.id}
-                                key={agent.id}
-                                selected={data && agent.id === data.agentId}
-                            >
-                                {agent.fname + " " + agent.lname}
+                            <option value={agent.id} key={agent.id}>
+                                {agent.fname} {agent.lname}
                             </option>
                         ))}
                     </select>

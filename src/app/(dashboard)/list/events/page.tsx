@@ -9,6 +9,7 @@ import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Prisma } from "@/generated/prisma/client"
 import { auth } from "@clerk/nextjs/server"
 import FormContainer from "@/components/FormContainer"
+import { getAgentName, getContactName } from "@/lib/utils"
 
 type EventList = Event & Contact & Agent
 type SearchParams = { [key: string]: string | string[] | undefined }
@@ -58,8 +59,8 @@ const EventsListPage = async ({
           {item.name}
         </Link>
       </td>
-      <td className="hidden md:table-cell">{item.contactId}</td>
-      <td className="hidden md:table-cell">{item.agentId}</td>
+      <td className="hidden md:table-cell">{getContactName(item.contactId)}</td>
+      <td className="hidden md:table-cell">{getAgentName(item.agentId)}</td>
       <td>
         <div className="flex items-center gap-2">
           <Link href={`/list/events/${item.id}`}>
@@ -88,11 +89,11 @@ const EventsListPage = async ({
 
   if (queryParams) {
     const searchValue = getFirst(queryParams.search)
-    if(searchValue) {
+    if (searchValue) {
       query.name = { contains: searchValue, mode: "insensitive" }
     }
   }
-  
+
 
   //FETCH DATA
   const [data, count] = await prisma.$transaction([

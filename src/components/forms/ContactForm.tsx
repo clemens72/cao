@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import { contactSchema } from "@/lib/formValidationSchemas"
 import { createContact, updateContact } from "@/lib/actions";
-import { Dispatch, SetStateAction, useActionState, useEffect } from "react";
+import { Dispatch, SetStateAction, startTransition, useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
@@ -39,8 +39,10 @@ const ContactForm = ({
 
     const onSubmit = handleSubmit(data => {
         console.log(data);
-        formAction(data);
-    })
+        startTransition(() => {
+            formAction(data);
+        });
+    });
 
     const router = useRouter()
 
@@ -109,15 +111,14 @@ const ContactForm = ({
                     <select
                         className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
                         {...register("agentId")}
-                        defaultValue={data?.agentId}
+                        defaultValue={data?.agentId ?? ""}
                     >
+                        <option value="" disabled>
+                            Select an agent
+                        </option>
                         {agents.map((agent: { id: number; fname: string; lname: string }) => (
-                            <option
-                                value={agent.id}
-                                key={agent.id}
-                                selected={data && agent.id === data.agentId}
-                            >
-                                {agent.fname + " " + agent.lname}
+                            <option value={agent.id} key={agent.id}>
+                                {agent.fname} {agent.lname}
                             </option>
                         ))}
                     </select>
