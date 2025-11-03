@@ -20,7 +20,7 @@ CAO Instructions to Launch App with Docker
 
 7. # In a new terminal, run the prisma migration and prisma db seed
     # Using "docker ps" you can view and copy the name of the app container
-    - docker exec -it [my_container] sh -c "npx prisma migrate dev --name init"
-    - docker exec -it [my_container] sh -c "npx prisma db seed"
+    - docker exec -it [instance_id] sh -c "npx prisma migrate dev --name init && npx prisma db seed"
+    - docker exec -it [instance_id] sh -c "npx prisma db seed"
 
 # Installing Docker on Debian Linux: https://docs.docker.com/engine/install/debian/
