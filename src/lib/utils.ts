@@ -38,3 +38,29 @@ export async function getContactName(contactId: number): Promise<string> {
 
   return `${contact.fname} ${contact.lname}`;
 }
+
+export async function getContactNumber(contactId: number): Promise<string> {
+  if (!contactId) return "Unknown";
+
+  const contact = await prisma.contact.findUnique({
+    where: { id: contactId },
+    select: { phone: true },
+  });
+
+  if (!contact) return "Unknown";
+
+  return contact.phone || "No Phone";
+}
+
+export async function getContactEmail(contactId: number): Promise<string> {
+  if (!contactId) return "Unknown";
+
+  const contact = await prisma.contact.findUnique({
+    where: { id: contactId },
+    select: { email: true },
+  });
+
+  if (!contact) return "Unknown";
+
+  return contact.email;
+}

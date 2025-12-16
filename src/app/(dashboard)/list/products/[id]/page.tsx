@@ -1,8 +1,26 @@
 import Link from "next/link"
 import Image from "next/image"
-import FormModel from "@/components/FormModel"
+import prisma from "@/lib/prisma"
+import { Product } from "@/generated/prisma"
+import { notFound } from "next/navigation"
+import FormContainer from "@/components/FormContainer"
+import { getAgentName } from "@/lib/utils"
 
-const SingleProductPage = () => {
+const SingleProductPage = async ({
+    params,
+}: {
+    params: Promise<{ id: string }>
+}) => {
+
+    const { id } = await params;
+
+    const product: Product | null = await prisma.product.findUnique({
+        where: { id: Number(id) },
+    })
+
+    if (!product) {
+        return notFound();
+    }
     return (
         <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
             {/* LEFT */}
@@ -16,15 +34,14 @@ const SingleProductPage = () => {
                                 <span className="font-bold">Product Details</span>
                             </div>
                             <div className="flex items-center gap-4">
-                                <h1 className="text-xl font-semibold">Alice Johnson</h1>
-                                <FormModel table="contacts" type="update" data={{
-                                        fname: "Alice",
-                                        lname: "Johnson",
-                                        email: "aj@gmail.com",
-                                    }}/>
+                                <h1 className="text-xl font-semibold">{product.name}</h1>
+                                <FormContainer table="products"
+                                    type="update"
+                                    data={product}
+                                />
                             </div>
                             <p className="text-sm">
-                                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                                {product.description}
                             </p>
                             <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
@@ -33,7 +50,7 @@ const SingleProductPage = () => {
                                 </div>
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                     <Image src="/agent.png" alt="" width={14} height={14} />
-                                    <span>Agent Johnson</span>
+                                    <span>{getAgentName(product.agentId)}</span>
                                 </div>
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                     <Image src="/mail.png" alt="" width={14} height={14} />

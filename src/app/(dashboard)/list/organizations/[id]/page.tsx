@@ -1,8 +1,38 @@
 import Link from "next/link"
 import Image from "next/image"
-import FormModel from "@/components/FormModel"
+import prisma from "@/lib/prisma"
+import { Organization, Event, Product } from "@/generated/prisma"
+import { notFound } from "next/navigation"
+import FormContainer from "@/components/FormContainer"
+import { getAgentName, getContactEmail, getContactName, getContactNumber } from "@/lib/utils"
+import Table from "@/components/Table"
 
-const SingleOrganizationPage = () => {
+const SingleOrganizationPage = async ({
+    params,
+}: {
+    params: Promise<{ id: string }>
+}) => {
+
+    const { id } = await params;
+
+    type OrganizationWithRelations = Organization & {
+        events: (Event & { products: Product[] })[]
+    }
+    const organization: OrganizationWithRelations | null = await prisma.organization.findUnique({
+        where: { id: Number(id) },
+        include: {
+            events: {
+                include: {
+                    products: true
+                }
+            }
+        }
+    })
+
+    if (!organization) {
+        return notFound();
+    }
+
     return (
         <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
             {/* LEFT */}
@@ -13,35 +43,34 @@ const SingleOrganizationPage = () => {
                     <div className="bg-lightorange py-6 px-4 rounded-md flex-1 flex gap-4">
                         <div className="flex flex-1 flex-col justify-between gap-4">
                             <div className='flex justify-between items-center'>
-                                <span className="font-bold">Contact Details</span>
+                                <span className="font-bold">Organization Details</span>
                             </div>
                             <div className="flex items-center gap-4">
-                                <h1 className="text-xl font-semibold">Alice Johnson</h1>
-                                <FormModel table="contacts" type="update" data={{
-                                        fname: "Alice",
-                                        lname: "Johnson",
-                                        email: "aj@gmail.com",
-                                    }}/>
+                                <h1 className="text-xl font-semibold">{organization.name}</h1>
+                                <FormContainer table="organizations"
+                                    type="update"
+                                    data={organization}
+                                />
                             </div>
                             <p className="text-sm">
-                                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                                {organization.note}
                             </p>
                             <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                     <Image src="/company.png" alt="" width={14} height={14} />
-                                    <span>Organization, LLC</span>
+                                    <span>Contact: {getContactName(organization.contactId)}</span>
                                 </div>
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                     <Image src="/agent.png" alt="" width={14} height={14} />
-                                    <span>Agent Johnson</span>
+                                    <span>Agent: {getAgentName(organization.agentId)}</span>
                                 </div>
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                     <Image src="/mail.png" alt="" width={14} height={14} />
-                                    <span>user@gmail.com</span>
+                                    <span>{getContactEmail(organization.contactId)}</span>
                                 </div>
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                     <Image src="/phone.png" alt="" width={14} height={14} />
-                                    <span>(614) 123-4567</span>
+                                    <span>{getContactNumber(organization.contactId)}</span>
                                 </div>
                             </div>
                         </div>
@@ -49,13 +78,36 @@ const SingleOrganizationPage = () => {
 
                 </div>
                 {/* BOTTOM */}
-                <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
-                    <h1>Organization Affiliation</h1>
-                    <h1>Tasks</h1>
-                    <h1>Log</h1>
-                    <h1>Events</h1>
-                    <h1>Pitched Products</h1>
-                    <h1>Documents</h1>
+                <div className="mt-4 bg-white rounded-md p-4">
+                    {/* EVENTS TABLE */}
+                    <div className="mb-8">
+                        <h1 className="text-xl font-semibold mb-4">Events</h1>
+                        {organization.events.length > 0 ? (
+                            <Table
+                                columns={[
+                                    { header: "Event Name", accessor: "name" },
+                                    { header: "Start Date", accessor: "startDate" },
+                                    { header: "End Date", accessor: "endDate" },
+                                    { header: "Gross Price", accessor: "gross_price" },
+                                ]}
+                                renderRow={(event: Event & { products: Product[] }) => (
+                                    <tr key={event.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightpurple">
+                                        <td className="py-4">
+                                            <Link href={`/list/events/${event.id}`} className="font-medium hover:underline">
+                                                {event.name}
+                                            </Link>
+                                        </td>
+                                        <td>{new Date(event.startDate).toLocaleDateString()}</td>
+                                        <td>{new Date(event.endDate).toLocaleDateString()}</td>
+                                        <td>{event.gross_price ? `$${event.gross_price.toFixed(2)}` : "N/A"}</td>
+                                    </tr>
+                                )}
+                                data={organization.events}
+                            />
+                        ) : (
+                            <p className="text-gray-500 text-sm">No events found for this organization.</p>
+                        )}
+                    </div>
                 </div>
             </div>
             {/* RIGHT */}
