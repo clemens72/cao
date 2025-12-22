@@ -26,14 +26,14 @@ const Navbar = async () => {
         </div>
         <div className='flex flex-col'>
           <span className="font-medium">
-            {user?.fullName as string}
+            {user?.firstName} {user?.lastName}
           </span>
         </div>
         {/* FULL NAME AND ROLE
         
         <div className="flex flex-col">
           <span className="text-xs leading-3 font-medium">
-            {user?.fullName as string}</span>
+            {user?.fullastName as string}</span>
           <span className="text-[10px] text-gray-500 text-right">
             {user?.publicMetadata?.role as string}
           </span>

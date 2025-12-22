@@ -15,15 +15,10 @@ const SingleEventPage = async ({
 
     const { id } = await params;
 
-    type EventWithRelations = Event & {
-        products: Product[]
-        organizations: Organization[]
-    }
-    const event: EventWithRelations | null = await prisma.event.findUnique({
-        where: { id: Number(id) },
+    const event = await prisma.event.findUnique({
+        where: { id },
         include: {
-            products: true,
-            organizations: true
+            products: true
         }
     })
 
@@ -94,7 +89,7 @@ const SingleEventPage = async ({
                                                 {product.name}
                                             </Link>
                                         </td>
-                                        <td>{product.category}</td>
+                                        <td>{product.name}</td>
                                         <td className="max-w-xs truncate">{product.description}</td>
                                     </tr>
                                 )}
@@ -105,33 +100,6 @@ const SingleEventPage = async ({
                         )}
                     </div>
 
-                    {/* ORGANIZATIONS TABLE */}
-                    <div className="mb-8">
-                        <h1 className="text-xl font-semibold mb-4">Organizations</h1>
-                        {event.organizations.length > 0 ? (
-                            <Table
-                                columns={[
-                                    { header: "Name", accessor: "name" },
-                                    { header: "Type", accessor: "type" },
-                                    { header: "Address", accessor: "address" },
-                                ]}
-                                renderRow={(organization: Organization) => (
-                                    <tr key={organization.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightpurple">
-                                        <td className="py-4">
-                                            <Link href={`/list/organizations/${organization.id}`} className="font-medium hover:underline">
-                                                {organization.name}
-                                            </Link>
-                                        </td>
-                                        <td>{organization.type}</td>
-                                        <td>{organization.address || "N/A"}</td>
-                                    </tr>
-                                )}
-                                data={event.organizations}
-                            />
-                        ) : (
-                            <p className="text-gray-500 text-sm">No organizations found for this event.</p>
-                        )}
-                    </div>
                 </div>
             </div>
             {/* RIGHT */}

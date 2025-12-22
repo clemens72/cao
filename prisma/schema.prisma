@@ -15,136 +15,283 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Agent {
-  id Int @id @default(autoincrement())
-  username String @unique
-  fname String
-  lname String
-  createdAt DateTime @default(now())
-  active Boolean @default(true)
-  contacts Contact[]
-  events Event[]
-  organizations Organization[]
-  products Product[]
-  tasks Task[]
+model Category {
+  id       String    @id @default(uuid()) @db.VarChar(36)
+  name     String?   @db.VarChar(255)
+  products Product[] @relation("CategoryToProduct")
+
+  @@map("category")
 }
 
-model Contact {
-  id Int @id @default(autoincrement())
-  email String @unique
-  fname String
-  lname String
-  phone String?
-  address String?
-  organizations Organization[]
-  events Event[]
-  products Product[]
-  agentId Int
-  agent Agent @relation(fields: [agentId], references: [id])
-  createdAt DateTime @default(now())
-}
+model EventType {
+  id    String @id @default(uuid()) @db.VarChar(36)
+  name  String? @db.VarChar(255)
+  events Event[] @relation("EventType")
 
-model Event {
-  id Int @id @default(autoincrement())
-  name String
-  gross_price Float?
-  note String?
-  startDate DateTime
-  endDate DateTime
-  contactId Int
-  contact Contact @relation(fields: [contactId], references: [id])
-  products Product[]
-  organizations Organization[]
-  agentId Int
-  agent Agent @relation(fields: [agentId], references: [id])
-  createdAt DateTime @default(now())
-}
-
-model Organization {
-  id Int @id @default(autoincrement())
-  name String
-  address String?
-  note String?
-  type OrgType
-  referral String?
-  contactId Int
-  contact Contact? @relation(fields: [contactId], references: [id])
-  events Event[]
-  agentId Int
-  agent Agent @relation(fields: [agentId], references: [id])
-  createdAt DateTime @default(now())
+  @@map("event_type")
 }
 
 model Product {
-  id Int @id @default(autoincrement())
-  name String
-  description String
-  category ProductCategory
-  contactId Int
-  contact Contact @relation(fields: [contactId], references: [id])
-  events Event[]
-  agentId Int
-  agent Agent @relation(fields: [agentId], references: [id])
-  createdAt DateTime @default(now())
-}
+  id                String         @id @default(uuid()) @db.VarChar(36)
+  name              String?        @db.VarChar(255)
+  grossPrice        Int?           @map("gross_price") @db.Integer
+  feePercent        Int?           @map("fee_percent") @db.Integer
+  enabled           Boolean?       @default(true)
+  note              String?        @db.Text
+  type              ProductType?
+  //bio               String?        @db.Text
+  requirements      String?        @map("special_requirements") @db.VarChar(255)
+  description       String?        @db.Text
+  bookingContactId  String?        @map("booking_contact_id") @db.VarChar(36)
+  bookingContact    User?          @relation("ProductBookingContact", fields: [bookingContactId], references: [id])
+  agentId           String?        @map("agent_id") @db.VarChar(36)
+  agent             User?          @relation("ProductAgent", fields: [agentId], references: [id])
+  leaderId          String?        @map("leader_id") @db.VarChar(36)
+  leader            User?          @relation("ProductLeader", fields: [leaderId], references: [id])
+  categories        Category[]     @relation("CategoryToProduct")
+  tasks             Task[]         @relation("ProductToTask")
+  contactPoints     ContactPoint[] @relation("ProductToContactPoint")
+  events            EventProduct[] @relation("ProductPitch")
 
-model Report {
-  id Int @id @default(autoincrement())
-  name String
-  createdAt DateTime @default(now())
+  @@map("product")
 }
 
 model Task {
-  id Int @id @default(autoincrement())
-  note String
-  closed DateTime?
-  complete Boolean @default(false)
-  agentId Int
-  agent Agent @relation(fields: [agentId], references: [id])
-  createdAt DateTime @default(now())
+  id            String         @id @default(uuid()) @db.VarChar(36)
+  createdAt     DateTime?      @map("created_at") @db.Timestamp
+  createdById   String?        @map("created_by") @db.VarChar(36)
+  createdBy     User?          @relation("TaskCreator", fields: [createdById], references: [id])
+  ownerId       String?        @map("owner_id") @db.VarChar(36)
+  owner         User?          @relation("TaskOwner", fields: [ownerId], references: [id])
+  doneAt        DateTime?      @map("done_at") @db.Timestamp
+  complete      Boolean?
+  note          String?        @db.Text
+  products      Product[]      @relation("ProductToTask")
+  events        Event[]        @relation("EventTasks")
+  users         User[]         @relation("TaskToUser")
+  agentId       String?        @map("agent_id") @db.VarChar(36)
+  agent         User?          @relation("TaskToAgent", fields: [agentId], references: [id])
+  organizations Organization[] @relation("OrganizationToTask")
+
+  @@map("task")
 }
 
-enum ProductCategory {
-  PRODUCTION
-  SERVICE
-  MERCHANDISE
-  ENTERTAINER_MUSIC
-  ENTERTAINER_NON_MUSIC
+model Event {
+  id                 String         @id @default(uuid()) @db.VarChar(36)
+  name               String?        @db.VarChar(255)
+  budget             Int?           @db.Integer
+  location           String?        @db.VarChar(255)
+  startDate          DateTime?      @map("startDate")
+  endDate            DateTime?      @map("endDate")
+  contractSentDate   DateTime?      @map("contract_sent_date") @db.Timestamp
+  contractReturnDate DateTime?      @map("contract_return_date") @db.Timestamp
+  status             EventStatus?   
+  form               EventForm?   
+  note               String?        @db.Text
+  attendance         Int?           @map("attendance")
+  reportTo           String?        @map("report_to") @db.VarChar(255)
+  agentId            String?        @map("agent_id") @db.VarChar(36)
+  agent              User?          @relation("EventAgent", fields: [agentId], references: [id])
+  eventTypeId        String?        @map("event_type_id") @db.VarChar(36)
+  eventType          EventType?     @relation("EventType", fields: [eventTypeId], references: [id])
+  clientOrgId        String?        @map("client_org_id") @db.VarChar(36)
+  clientOrg          Organization?  @relation("EventToOrganization", fields: [clientOrgId], references: [id])
+  clientContactId    String?        @map("client_contact_id") @db.VarChar(36)
+  clientContact      User?          @relation("EventClient", fields: [clientContactId], references: [id])
+  billingContactId   String?        @map("billing_contact_id") @db.VarChar(36)
+  billingContact     User?          @relation("EventBillingClient", fields: [billingContactId], references: [id])
+  venueId            String?        @map("venue_id") @db.VarChar(36)
+  venue              Organization?  @relation("EventVenue", fields: [venueId], references: [id])
+  tasks              Task[]         @relation("EventTasks")
+  contacts           User[]         @relation("EventContacts")
+  products           EventProduct[] @relation("EventPitch")
+
+  @@map("event")
 }
 
-enum OrgType {
-  AGENCY
-  BANQUET_FACILITY
-  BAR
-  BUSINESS
-  CASINO
-  CHURCH
-  CONCERT_VENUE
-  CONVENTION_CENTER
-  COUNTRY_CLUB
-  EVENT_COMPLEX
-  FESTIVAL_SITE
-  FINE_ARTS_FACILITIES
-  FRATERNAL_ORGANIZATION
-  GOVERNMENT
-  HOSPITAL
-  HOTEL
-  LIBRARY_MUSEUM
-  LIVING_FACILITIES
-  OTHER
-  PARK
-  PRISONS
-  PRIVATE_HOME
-  RECREATION_COMMUNITY_CENTER
-  RESTAURANT
-  RETAIL
-  SCHOOL
-  SPORTS_FACILITY
-  THEATER
-  UNIVERSITIES
+model User {
+  id                     String                 @id @default(uuid()) @db.VarChar(36)
+  createdAt              DateTime?              @map("created_at") @db.Timestamp
+  lastModification       DateTime?              @map("last_modification") @db.Timestamp
+  enabled                Boolean?
+  offImage               String?                @map("off_image") @db.VarChar(255)
+  imageId                String?                @map("image_id") @db.VarChar(36)
+  lastLogin              DateTime?              @map("last_login") @db.Timestamp
+  inserted               String?                @db.VarChar(36)
+  phone                  String?                @db.VarChar(50)
+  email                  String?                @db.VarChar(255)
+  pushNotificationAllowed Boolean?               @map("push_notification_allowed")
+  username               String?                @db.VarChar(255)
+  password               String?                @db.VarChar(255)
+  firstName              String?                @map("first_name") @db.VarChar(255)
+  lastName               String?                @map("last_name") @db.VarChar(255)
+  modified               String?                @db.VarChar(36)
+  mod                    String?                @db.VarChar(36)
+  adminNotes             String?                @map("admin_notes") @db.Text
+  address                String?                @db.VarChar(36)
+  agentId                String?                 @map("agent_id") @db.VarChar(36)
+  agent                  User?                  @relation("AgentToUsers", fields: [agentId], references: [id])
+  agents                 User[]                 @relation("AgentToUsers")
+  organizationsCreated   Organization[]         @relation("UserCreated")
+  //passwordRequests       PasswordResetRequest[]
+  payments               Payment[]
+  events                 Event[]                @relation("EventContacts")
+  billingEvents          Event[]                @relation("EventBillingClient")
+  clientEvents           Event[]                @relation("EventClient")
+  contactPoints          ContactPoint[]         @relation("UserToContactPoint")
+  roles                  Role[]                 @relation("UserToRole")
+  tasks                  Task[]                 @relation("TaskToUser")
+  tasksAsAgent           Task[]                 @relation("TaskToAgent")
+  organizationsAsAgent   Organization[]         @relation("OrganizationToAgent")
+  organizationsAsContact Organization[]         @relation("OrganizationToContact")
+  organizations          Organization[]         @relation("OrganizationToUser")
+  managedEvents          Event[]                @relation("EventAgent")
+  productsAsAgent        Product[]              @relation("ProductAgent")
+  productsAsBookingContact Product[]            @relation("ProductBookingContact")
+  productsAsLeader       Product[]              @relation("ProductLeader")
+  createdTasks           Task[]                 @relation("TaskCreator")
+  ownedTasks             Task[]                 @relation("TaskOwner")
+
+  @@map("user")
 }
 
-enum EventType {
+model Organization {
+  id            String         @id @default(uuid()) @db.VarChar(36)
+  name          String?        @db.VarChar(255)
+  address1      String?        @map("address1") @db.VarChar(255)
+  address2      String?        @map("address2") @db.VarChar(255)
+  city          String?        @db.VarChar(255)
+  state         String?        @db.VarChar(255)
+  zip           String?        @db.VarChar(20)
+  country       String?        @db.VarChar(255)
+  note          String?        @db.Text
+  addressId     String?        @map("address_id") @db.VarChar(36)
+  address       Address?       @relation(fields: [addressId], references: [id])
+  email         String?        @db.VarChar(255)
+  phone         String?        @db.VarChar(50)
+  type          String?        @db.VarChar(255)
+  resources     String?        @db.VarChar(255)
+  createdBy     String?        @map("created_by") @db.VarChar(36)
+  creator       User?          @relation("UserCreated", fields: [createdBy], references: [id])
+  contactId     String?        @map("contact_id") @db.VarChar(36)
+  contact       User?          @relation("OrganizationToContact", fields: [contactId], references: [id])
+  agentId       String?        @map("agent_id") @db.VarChar(36)
+  agent         User?          @relation("OrganizationToAgent", fields: [agentId], references: [id])
+  tasks         Task[]         @relation("OrganizationToTask")
+  users         User[]         @relation("OrganizationToUser")
+  events        Event[]        @relation("EventToOrganization")
+  venueEvents   Event[]        @relation("EventVenue")
+  contactPoints ContactPoint[] @relation("OrganizationToContactPoint")
+  payments      Payment[]
+
+  @@map("organization")
+}
+
+model ContactPoint {
+  id             String         @id @default(uuid()) @db.VarChar(36)
+  type           String?        @db.VarChar(255)
+  value          String?        @db.VarChar(255)
+  products       Product[]      @relation("ProductToContactPoint")
+  contactId      String?        @map("contact_id") @db.VarChar(36)
+  contact        User?          @relation("UserToContactPoint", fields: [contactId], references: [id])
+  organizationId String?       @map("organization_id") @db.VarChar(36)
+  organization   Organization?  @relation("OrganizationToContactPoint", fields: [organizationId], references: [id])
+
+  @@map("contact_point")
+}
+
+model EventProduct {
+  id           String @id @default(uuid()) @db.VarChar(36)
+  name         String? @db.VarChar(255)
+  enabled      Boolean? @default(true)
+  eventId   String @map("event_id") @db.VarChar(36)
+  event   Event   @relation("EventPitch", fields: [eventId], references: [id])
+  productId String @map("product_id") @db.VarChar(36)
+  product Product @relation("ProductPitch", fields: [productId], references: [id])
+
+  @@map("event_product")
+}
+
+model Role {
+  id    String @id @default(uuid()) @db.VarChar(36)
+  name  String? @db.VarChar(255)
+  users User[] @relation("UserToRole")
+
+  @@map("role")
+}
+
+/* model UserMedia {
+  id           String    @id @default(uuid()) @db.VarChar(36)
+  createdAt    DateTime? @map("created_at") @db.Timestamp
+  lastModified DateTime? @map("last_modified") @db.Timestamp
+  version      Int?
+  app          String?   @db.VarChar(255)
+  extensions   Int?
+  size         Int?      @db.SmallInt
+  createdBy    String?   @map("created_by") @db.VarChar(36)
+  modifiedBy   String?   @map("modified_by") @db.VarChar(36)
+
+  @@map("user_media")
+} */
+
+model Address {
+  id            String   @id @default(uuid()) @db.VarChar(36)
+  name          String?  @db.VarChar(255)
+  address       String?  @db.VarChar(255)
+  address2      String?  @db.VarChar(255)
+  city          String?  @db.VarChar(255)
+  state         String?  @db.VarChar(255)
+  zip           String?  @db.VarChar(20)
+  country       String?  @db.VarChar(255)
+  latitude      Decimal? @db.Decimal(10, 8)
+  longitude     Decimal? @db.Decimal(11, 8)
+  organizations Organization[]
+
+  @@map("address")
+}
+
+/* model PasswordResetRequest {
+  id        String    @id @default(uuid()) @db.VarChar(36)
+  requestAt DateTime? @map("request_at") @db.Timestamp
+  used      Boolean?
+  version   Int?
+  userId    String?   @map("user_id") @db.VarChar(36)
+  user      User?     @relation(fields: [userId], references: [id])
+
+  @@map("password_reset_request")
+} */
+
+model Payment {
+  id              String        @id @default(uuid()) @db.VarChar(36)
+  createdBy       String?       @map("created_by") @db.VarChar(36)
+  createdAt       DateTime?     @map("created_at") @db.Timestamp
+  modifiedAt      DateTime?     @map("modified_at") @db.Timestamp
+  modified        String?       @db.VarChar(36)
+  amount          Decimal?      @db.Decimal(10, 2)
+  referenceNumber String?       @map("reference_number") @db.VarChar(255)
+  userId          String?       @map("user_id") @db.VarChar(36)
+  organizationId  String?       @map("organization_id") @db.VarChar(36)
+  user            User?         @relation(fields: [userId], references: [id])
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+
+  @@map("payment")
+}
+
+enum EventStatus {
+  INQUIRY
+  CONTRACT_OUT
+  BOOKED
+  COMPLETED
+  CANCELLED
+}
+
+enum EventForm {
+  YES
+  NO
+  N_A
+}
+
+/* enum EventType {
   BAR_BAT_MITZVAH
   CLUB_RESTAURANT
   COLLEGE
@@ -159,4 +306,12 @@ enum EventType {
   SCHOOL_PERFORMANCE
   TICKETED_CONCERT
   WEDDING
+} */
+
+enum ProductType {
+  PRODUCTION
+  SERVICE
+  MERCHANDISE
+  ENTERTAINER_MUSIC
+  ENTERTAINER_NON_MUSIC
 }

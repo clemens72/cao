@@ -58,81 +58,113 @@ const ContactForm = ({
     const { agents } = relatedData;
 
     return (
-        <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-            <h1 className="text-xl font-semibold">
-                {type === "create" ? "New Contact" : "Update Contact"}
-            </h1>
-            <div className="flex justify-between flex-wrap gap-4">
-                {data && (
-                    <InputField
-                        label="Id"
-                        name="id"
-                        defaultValue={data?.id}
-                        register={register}
-                        error={errors?.id}
-                        hidden
-                    />
-                )}
-                <InputField
-                    label="First Name"
-                    name="fname"
-                    defaultValue={data?.fname}
+        <form className="flex flex-col h-full max-h-[90vh] overflow-hidden" onSubmit={onSubmit}>
+            {/* FIXED HEADER */}
+            <div className="pb-6 px-6 border-b">
+                <h1 className="text-2xl font-semibold text-gray-800">
+                    {type === "create" ? "New Contact" : "Update Contact"}
+                </h1>
+            </div>
+
+            {/* SCROLLABLE BODY - Two Column Layout */}
+            <div className="flex-1 overflow-y-auto px-6 py-6">
+                {data && (<InputField
+                    label="Id"
+                    name="id"
+                    defaultValue={data?.id}
                     register={register}
-                    error={errors?.fname}
-                />
-                <InputField
-                    label="Last Name"
-                    name="lname"
-                    defaultValue={data?.lname}
-                    register={register}
-                    error={errors?.lname}
-                />
-                <InputField
-                    label="Email"
-                    name="email"
-                    defaultValue={data?.email}
-                    register={register}
-                    error={errors?.email}
-                />
-                <InputField
-                    label="Phone"
-                    name="phone"
-                    defaultValue={data?.phone}
-                    register={register}
-                />
-                <InputField
-                    label="Address"
-                    name="address"
-                    defaultValue={data?.address}
-                    register={register}
-                />
-                <div className="flex flex-col gap-2 w-full md:w-1/4">
-                    <label className="text-xs text-gray-500">Agent</label>
-                    <select
-                        className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-                        {...register("agentId")}
-                        defaultValue={data?.agentId ?? ""}
-                    >
-                        <option value="" disabled>
-                            Select an agent
-                        </option>
-                        {agents.map((agent: { id: number; fname: string; lname: string }) => (
-                            <option value={agent.id} key={agent.id}>
-                                {agent.fname} {agent.lname}
-                            </option>
-                        ))}
-                    </select>
-                    {errors.agentId?.message && (
-                        <p className="text-xs text-red-400">
-                            {errors.agentId.message.toString()}
-                        </p>
-                    )}
+                    error={errors?.id}
+                    hidden
+                />)}
+
+                <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 max-w-5xl">
+                    {/* Left Column */}
+                    <div className="space-y-5">
+                        <div className="pb-2 border-b border-gray-200">
+                            <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Basic Information</h2>
+                        </div>
+
+                        <InputField label="First Name" name="firstName" defaultValue={data?.name} register={register} error={errors?.firstName} />
+                        <InputField label="Last Name" name="lastName" defaultValue={data?.name} register={register} error={errors?.lastName} />
+
+                        <div className="pt-3 pb-2 border-b border-gray-200">
+                            <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Contact Details</h2>
+                        </div>
+
+                        <InputField label="Phone Number" name="phone" defaultValue={data?.phone} register={register} error={errors?.phone} />
+                        <InputField label="Email" name="email" defaultValue={data?.email} register={register} error={errors?.email} />
+
+                        <div>
+                            <label className="block text-xs text-gray-600 font-medium mb-1.5">Note</label>
+                            <textarea
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-orange focus:border-orange"
+                                {...register("note")}
+                                rows={4}
+                                defaultValue={data?.note}
+                                placeholder={"Additional notes..."}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="space-y-5">
+                        <div className="pb-2 border-b border-gray-200">
+                            <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Classification</h2>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs text-gray-600 font-medium mb-1.5">Agent</label>
+                            <select
+                                className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
+                                {...register("agentId")}
+                                defaultValue={data?.agentId}
+                            >
+                                <option value="" disabled>
+                                    Select an agent
+                                </option>
+                                {agents.map((agent: { id: number; firstName: string; lastName: string }) => (
+                                    <option value={agent.id} key={agent.id}>
+                                        {agent.firstName} {agent.lastName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <InputField label="Referred by" name="referredBy" register={register} />
+
+                        <div className="pt-3 pb-2 border-b border-gray-200">
+                            <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Membership</h2>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs text-gray-600 font-medium mb-1.5">List Membership</label>
+                            <select
+                                className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
+                                name="membership"
+                                multiple
+                                size={6}
+                            >
+                                <option value="member_a">Member A</option>
+                                <option value="member_b">Member B</option>
+                                <option value="member_c">Member C</option>
+                                <option value="member_d">Member D</option>
+                                <option value="member_e">Member E</option>
+                            </select>
+                            <p className="text-xs text-gray-500 mt-1.5">Hold Ctrl/Cmd to select multiple</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            {state.error && <span className="text-red-500">Something went wrong!</span>}
-            <button className="bg-orange text-white p-2 rounded-md">
-                {type === "create" ? "Create" : "Update"}
-            </button>
+
+            {/* FIXED FOOTER */}
+            <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between">
+                <div>
+                    {state.error && <span className="text-red-500 text-sm font-medium">Something went wrong!</span>}
+                </div>
+                <button className="bg-orange hover:bg-orange/90 text-white py-2.5 px-8 rounded-md font-semibold transition-colors shadow-sm">
+                    {type === "create" ? "Create Contact" : "Update Contact"}
+                </button>
+            </div>
         </form>
     )
 }

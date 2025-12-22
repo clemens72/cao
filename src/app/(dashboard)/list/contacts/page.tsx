@@ -3,7 +3,7 @@ import TableSearch from "@/components/TableSearch"
 import Image from "next/image"
 import Table from "@/components/Table"
 import Link from "next/link"
-import { Contact, Event, Organization } from "@/generated/prisma"
+import { User, Event, Organization } from "@/generated/prisma"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Prisma } from "@/generated/prisma/client"
@@ -11,7 +11,7 @@ import { auth } from "@clerk/nextjs/server"
 import FormContainer from "@/components/FormContainer"
 import { getAgentName } from "@/lib/utils"
 
-type ContactList = Contact & { organizations: Organization[] } & { events: Event[] }
+type ContactList = User & { organizations: Organization[] } & { events: Event[] }
 type SearchParams = { [key: string]: string | string[] | undefined }
 
 function getFirst(value: string | string[] | undefined) {
@@ -39,11 +39,6 @@ const ContactsListPage = async ({
       className: "hidden md:table-cell",
     },
     {
-      header: "Events",
-      accessor: "event",
-      className: "hidden md:table-cell",
-    },
-    {
       header: "Agent",
       accessor: "agent",
       className: "hidden md:table-cell",
@@ -61,11 +56,10 @@ const ContactsListPage = async ({
     >
       <td className="font-semibold pl-2">
         <Link href={`/list/contacts/${item.id}`}>
-          {item.fname + " " + item.lname}
+          {item.firstName + " " + item.lastName}
         </Link>
       </td>
       <td className="hidden md:table-cell">{item.organizations.map(organization => organization.name).join(", ")}</td>
-      <td className="hidden md:table-cell">{item.events.map(event => event.name).join(", ")}</td>
       <td className="hidden md:table-cell">{getAgentName(item.agentId)}</td>
       <td>
         <div className="flex items-center gap-2">
@@ -91,14 +85,14 @@ const ContactsListPage = async ({
   const p = getFirst(page) ? parseInt(getFirst(page)!) : 1
 
   //URL PARAMS CONDITION
-  const query: Prisma.ContactWhereInput = {}
+  const query: Prisma.UserWhereInput = {}
 
   if (queryParams) {
     const searchValue = getFirst(queryParams.search)
     if (searchValue) {
       query.OR = [
-        { fname: { contains: searchValue, mode: "insensitive" } },
-        { lname: { contains: searchValue, mode: "insensitive" } },
+        { firstName: { contains: searchValue, mode: "insensitive" } },
+        { lastName: { contains: searchValue, mode: "insensitive" } },
       ]
     }
   }
@@ -106,7 +100,7 @@ const ContactsListPage = async ({
   //FETCH DATA
   const [data, count] = await prisma.$transaction([
 
-    prisma.contact.findMany({
+    prisma.user.findMany({
       where: query,
       include: {
         organizations: true,
@@ -115,7 +109,7 @@ const ContactsListPage = async ({
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
     }),
-    prisma.contact.count()
+    prisma.user.count()
   ])
 
   return (

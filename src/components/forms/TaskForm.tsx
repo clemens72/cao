@@ -90,9 +90,9 @@ const TaskForm = ({
                         <option value="" disabled>
                             Select an agent
                         </option>
-                        {agents.map((agent: { id: number; fname: string; lname: string }) => (
+                        {agents.map((agent: { id: number; firstName: string; lastName: string }) => (
                             <option value={agent.id} key={agent.id}>
-                                {agent.fname} {agent.lname}
+                                {agent.firstName} {agent.lastName}
                             </option>
                         ))}
                     </select>

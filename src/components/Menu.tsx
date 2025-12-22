@@ -36,12 +36,6 @@ const menuItems = [
         href: "/list/events",
         visible: ["admin"],
       },
-      {
-        icon: "/reporting.png",
-        label: "Reporting",
-        href: "/list/reporting",
-        visible: ["admin", "agent"],
-      },
     ],
   },
   {

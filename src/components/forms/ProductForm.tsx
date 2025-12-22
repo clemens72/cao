@@ -116,9 +116,9 @@ const ProductForm = ({
                         <option value="" disabled>
                             Select a contact
                         </option>
-                        {contacts.map((contact: { id: number; fname: string; lname: string }) => (
+                        {contacts.map((contact: { id: number; firstName: string; lastName: string }) => (
                             <option value={contact.id} key={contact.id}>
-                                {contact.fname} {contact.lname}
+                                {contact.firstName} {contact.lastName}
                             </option>
                         ))}
                     </select>
@@ -138,9 +138,9 @@ const ProductForm = ({
                         <option value="" disabled>
                             Select an agent
                         </option>
-                        {agents.map((agent: { id: number; fname: string; lname: string }) => (
+                        {agents.map((agent: { id: number; firstName: string; lastName: string }) => (
                             <option value={agent.id} key={agent.id}>
-                                {agent.fname} {agent.lname}
+                                {agent.firstName} {agent.lastName}
                             </option>
                         ))}
                     </select>

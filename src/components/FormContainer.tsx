@@ -8,7 +8,7 @@ export type FormContainerProps = {
     | "tasks"
     | "products"
     | "organizations"
-    | "reports";
+    /* | "reports"; */
     type: "create" | "update" | "delete";
     data?: any;
     id?: number | string;
@@ -21,45 +21,80 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
         switch (table) {
 
             case "contacts":
-                const contactAgents = await prisma.agent.findMany({
-                    select: { id: true, fname: true, lname: true },
+                const contactAgents = await prisma.user.findMany({
+                    where: {
+                        roles: {
+                            some: {
+                                name: "agent"
+                            }
+                        }
+                    },
+                    select: { id: true, firstName: true, lastName: true },
                 });
                 relatedData = { agents: contactAgents }
                 break;
 
             case "events":
-                const eventContacts = await prisma.contact.findMany({
-                    select: { id: true, fname: true, lname: true },
+                const eventContacts = await prisma.user.findMany({
+                    select: { id: true, firstName: true, lastName: true },
                 });
-                const eventAgents = await prisma.agent.findMany({
-                    select: { id: true, fname: true, lname: true },
+                const eventAgents = await prisma.user.findMany({
+                    where: {
+                        roles: {
+                            some: {
+                                name: "agent"
+                            }
+                        }
+                    },
+                    select: { id: true, firstName: true, lastName: true },
                 });
                 relatedData = { contacts: eventContacts, agents: eventAgents }
                 break;
 
             case "organizations":
-                const organizationContacts = await prisma.contact.findMany({
-                    select: { id: true, fname: true, lname: true },
+                const organizationContacts = await prisma.user.findMany({
+                    select: { id: true, firstName: true, lastName: true },
                 });
-                const organizationAgents = await prisma.agent.findMany({
-                    select: { id: true, fname: true, lname: true },
+                const organizationAgents = await prisma.user.findMany({
+                    where: {
+                        roles: {
+                            some: {
+                                name: "agent"
+                            }
+                        }
+                    },
+                    select: { id: true, firstName: true, lastName: true },
                 });
                 relatedData = { contacts: organizationContacts, agents: organizationAgents }
                 break;
 
             case "products":
-                const productContacts = await prisma.contact.findMany({
-                    select: { id: true, fname: true, lname: true },
+                const productContacts = await prisma.user.findMany({
+                    select: { id: true, firstName: true, lastName: true },
                 });
-                const productAgents = await prisma.agent.findMany({
-                    select: { id: true, fname: true, lname: true },
+                const productAgents = await prisma.user.findMany({
+                    where: {
+                        roles: {
+                            some: {
+                                name: "agent"
+                            }
+                        }
+                    },
+                    select: { id: true, firstName: true, lastName: true },
                 });
                 relatedData = { contacts: productContacts, agents: productAgents }
                 break;
 
             case "tasks":
-                const taskAgents = await prisma.agent.findMany({
-                    select: { id: true, fname: true, lname: true },
+                const taskAgents = await prisma.user.findMany({
+                    where: {
+                        roles: {
+                            some: {
+                                name: "agent"
+                            }
+                        }
+                    },
+                    select: { id: true, firstName: true, lastName: true },
                 });
                 relatedData = { agents: taskAgents }
                 break;

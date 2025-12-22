@@ -24,11 +24,11 @@ const EventList = async ({ dateParam
                 <Link href={`/list/events/${event.id}`}>
                 <h1 className='font-semibold'>{event.name}</h1>
                 </Link>
-                <span className='text-xs'>{event.startDate.toLocaleTimeString('en-US',{
+                {/* <span className='text-xs'>{event.startDate.toLocaleTimeString('en-US',{
                     hour: "2-digit",
                     minute: "2-digit",
                     hour12:false
-                })}</span>
+                })}</span> */}
             </div>
             <p className='text-darkgray'>{event.note}</p>
         </div>

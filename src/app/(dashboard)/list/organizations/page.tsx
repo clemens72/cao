@@ -3,7 +3,7 @@ import TableSearch from "@/components/TableSearch"
 import Image from "next/image"
 import Table from "@/components/Table"
 import Link from "next/link"
-import { Organization, Event, Agent } from "@/generated/prisma"
+import { Organization, Event } from "@/generated/prisma"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Prisma } from "@/generated/prisma/client"
@@ -11,7 +11,7 @@ import { auth } from "@clerk/nextjs/server"
 import FormContainer from "@/components/FormContainer"
 import { getAgentName } from "@/lib/utils"
 
-type OrganizationList = Organization & { events: Event[] } & Agent
+type OrganizationList = Organization & { events: Event[] }
 type SearchParams = { [key: string]: string | string[] | undefined }
 
 function getFirst(value: string | string[] | undefined) {

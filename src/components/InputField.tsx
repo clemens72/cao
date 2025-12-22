@@ -22,7 +22,7 @@ const InputField = ({
     inputProps,
 }: InputFieldProps) => {
     return (
-        <div className={hidden ? "hidden" : "flex flex-col gap-2 w-full md:w-1/4"}>
+        <div className={hidden ? "hidden" : "flex flex-col gap-2 w-full"}>
             <label className="text-xs text-gray-500">{label}</label>
             <input type={type} {...register(name)}
                 className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full focus:outline-none focus:ring-orange"

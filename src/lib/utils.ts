@@ -13,36 +13,36 @@ export function formatDate(date: Date | string | null | undefined): string {
   return `${month}-${day}-${year}`;
 }
 
-export async function getAgentName(agentId: number): Promise<string> {
+export async function getAgentName(agentId: string | null): Promise<string> {
   if (!agentId) return "Unknown";
 
-  const agent = await prisma.agent.findUnique({
+  const agent = await prisma.user.findUnique({
     where: { id: agentId },
-    select: { fname: true, lname: true },
+    select: { firstName: true, lastName: true },
   });
 
   if (!agent) return "Unknown";
 
-  return `${agent.fname} ${agent.lname}`;
+  return `${agent.firstName} ${agent.lastName}` || "No Name";
 }
 
-export async function getContactName(contactId: number): Promise<string> {
+export async function getContactName(contactId: string | null): Promise<string> {
   if (!contactId) return "Unknown";
 
-  const contact = await prisma.contact.findUnique({
+  const contact = await prisma.user.findUnique({
     where: { id: contactId },
-    select: { fname: true, lname: true },
+    select: { firstName: true, lastName: true },
   });
 
   if (!contact) return "Unknown";
 
-  return `${contact.fname} ${contact.lname}`;
+  return `${contact.firstName} ${contact.lastName}` || "No Name";
 }
 
-export async function getContactNumber(contactId: number): Promise<string> {
+export async function getContactNumber(contactId: string | null): Promise<string> {
   if (!contactId) return "Unknown";
 
-  const contact = await prisma.contact.findUnique({
+  const contact = await prisma.user.findUnique({
     where: { id: contactId },
     select: { phone: true },
   });
@@ -52,15 +52,15 @@ export async function getContactNumber(contactId: number): Promise<string> {
   return contact.phone || "No Phone";
 }
 
-export async function getContactEmail(contactId: number): Promise<string> {
+export async function getContactEmail(contactId: string | null): Promise<string> {
   if (!contactId) return "Unknown";
 
-  const contact = await prisma.contact.findUnique({
+  const contact = await prisma.user.findUnique({
     where: { id: contactId },
     select: { email: true },
   });
 
   if (!contact) return "Unknown";
 
-  return contact.email;
+  return contact.email || "No Email";
 }

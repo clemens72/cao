@@ -16,11 +16,11 @@ export const createContact = async (
   currentState: CurrentState,
   data: ContactSchema) => {
   try {
-    await prisma.contact.create({
+    await prisma.user.create({
       data: {
         email: data.email,
-        fname: data.fname,
-        lname: data.lname,
+        firstName: data.firstName,
+        lastName: data.lastName,
         phone: data.phone,
         address: data.address,
         agentId: data.agentId
@@ -38,14 +38,14 @@ export const updateContact = async (
   data: ContactSchema
 ) => {
   try {
-    await prisma.contact.update({
+    await prisma.user.update({
       where: {
         id: data.id,
       },
       data: {
         email: data.email,
-        fname: data.fname,
-        lname: data.lname,
+        firstName: data.firstName,
+        lastName: data.lastName,
         phone: data.phone,
         address: data.address,
         agentId: data.agentId
@@ -64,9 +64,9 @@ export const deleteContact = async (
 ) => {
   const id = data.get("id") as string;
   try {
-    await prisma.contact.delete({
+    await prisma.user.delete({
       where: {
-        id: parseInt(id),
+        id: id,
       },
     });
 
@@ -84,12 +84,9 @@ export const createEvent = async (
     await prisma.event.create({
       data: {
         name: data.name,
-        gross_price: data.gross_price,
         note: data.note,
         startDate: data.startDate,
         endDate: data.endDate,
-        contactId: data.contactId,
-        agentId: data.agentId
       },
     });
     return { success: true, error: false }
@@ -110,12 +107,9 @@ export const updateEvent = async (
       },
       data: {
         name: data.name,
-        gross_price: data.gross_price,
         note: data.note,
         startDate: data.startDate,
         endDate: data.endDate,
-        contactId: data.contactId,
-        agentId: data.agentId
       },
     });
     return { success: true, error: false };
@@ -133,7 +127,7 @@ export const deleteEvent = async (
   try {
     await prisma.event.delete({
       where: {
-        id: parseInt(id),
+        id: id,
       },
     });
 
@@ -151,12 +145,20 @@ export const createOrganization = async (
     await prisma.organization.create({
       data: {
         name: data.name,
-        address: data.address,
-        note: data.note,
-        type: data.type,
-        referral: data.referral,
-        contactId: data.contactId,
-        agentId: data.agentId
+        email: data.email || null,
+        phone: data.phone || null,
+        type: data.type || null,
+        address1: data.address1 || null,
+        address2: data.address2 || null,
+        note: data.note || null,
+        resources: data.resources || null,
+        city: data.city || null,
+        state: data.state || null,
+        zip: data.zip || null,
+        country: data.country || null,
+        contactId: data.contactId || null,
+        agentId: data.agentId || null,
+        //createdBy: data.createdBy || null,
       },
     });
     return { success: true, error: false }
@@ -177,12 +179,9 @@ export const updateOrganization = async (
       },
       data: {
         name: data.name,
-        address: data.address,
-        note: data.note,
-        type: data.type,
-        referral: data.referral,
-        contactId: data.contactId,
-        agentId: data.agentId
+        email: data.email || null,
+        phone: data.phone || null,
+        type: data.type || null,
       },
     });
     return { success: true, error: false };
@@ -200,7 +199,7 @@ export const deleteOrganization = async (
   try {
     await prisma.organization.delete({
       where: {
-        id: parseInt(id),
+        id: id,
       },
     });
 
@@ -219,9 +218,6 @@ export const createProduct = async (
       data: {
         name: data.name,
         description: data.description,
-        category: data.category,
-        contactId: data.contactId,
-        agentId: data.agentId
       },
     });
     return { success: true, error: false }
@@ -243,9 +239,6 @@ export const updateProduct = async (
       data: {
         name: data.name,
         description: data.description,
-        category: data.category,
-        contactId: data.contactId,
-        agentId: data.agentId
       },
     });
     return { success: true, error: false };
@@ -263,7 +256,7 @@ export const deleteProduct = async (
   try {
     await prisma.product.delete({
       where: {
-        id: parseInt(id),
+        id: id,
       },
     });
 
@@ -274,7 +267,7 @@ export const deleteProduct = async (
   }
 };
 
-export const createReport = async (
+/* export const createReport = async (
   currentState: CurrentState,
   data: ReportSchema) => {
   try {
@@ -327,7 +320,7 @@ export const deleteReport = async (
     console.log(err);
     return { success: false, error: true };
   }
-};
+}; */
 
 export const createTask = async (
   currentState: CurrentState,
@@ -375,7 +368,7 @@ export const deleteTask = async (
   try {
     await prisma.task.delete({
       where: {
-        id: parseInt(id),
+        id: id,
       },
     });
 

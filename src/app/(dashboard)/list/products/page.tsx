@@ -4,14 +4,14 @@ import Image from "next/image"
 import Table from "@/components/Table"
 import Link from "next/link"
 import FormContainer from "@/components/FormContainer"
-import { Product, Contact, Agent, Event } from "@/generated/prisma"
+import { Product, Event } from "@/generated/prisma"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Prisma } from "@/generated/prisma/client"
 import { auth } from "@clerk/nextjs/server"
 import { getAgentName, getContactName } from "@/lib/utils"
 
-type ProductList = Product & Contact & { events: Event[] } & Agent
+type ProductList = Product & { events: Event[] } & { type: string }
 type SearchParams = { [key: string]: string | string[] | undefined }
 
 function getFirst(value: string | string[] | undefined) {
@@ -69,9 +69,9 @@ const ProductsListPage = async ({
           {item.name}
         </Link>
       </td>
-      <td className="hidden md:table-cell">{getContactName(item.contactId)}</td>
+      <td className="hidden md:table-cell">{/* getContactName(item.contactId) */}</td>
       <td className="hidden md:table-cell">{getAgentName(item.agentId)}</td>
-      <td className="hidden md:table-cell">{item.category}</td>
+      <td className="hidden md:table-cell">{item.type}</td>
       <td className="hidden md:table-cell">{item.events.map(event => event.name).join(", ")}</td>
       <td>
         <div className="flex items-center gap-2">

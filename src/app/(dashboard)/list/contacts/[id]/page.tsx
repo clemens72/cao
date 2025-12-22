@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import prisma from "@/lib/prisma"
-import { Contact, Organization, Event, Product, Task } from "@/generated/prisma"
+import { User, Organization, Event, Product } from "@/generated/prisma"
 import { notFound } from "next/navigation"
 import FormContainer from "@/components/FormContainer"
 import { getAgentName } from "@/lib/utils"
@@ -14,21 +14,21 @@ const SingleContactPage = async ({
 }) => {
 
     const { id } = await params;
-    type ContactWithRelations = Contact & { 
+    type ContactWithRelations = User & { 
         organizations: Organization[]
-        events: Event[]
-        products: Product[]
+        managedEvents: Event[]
+        productsAsLeader: Product[]
     }
-    const contact: ContactWithRelations | null = await prisma.contact.findUnique({
-        where: { id: Number(id) },
+    const contact: ContactWithRelations | null = await prisma.user.findUnique({
+        where: { id },
         include: {
             organizations: true,
-            events: {
+            managedEvents: {
                 include: {
                     products: true
                 }
             },
-            products: true,
+            productsAsLeader: true,
         },
     })
 
@@ -48,7 +48,7 @@ const SingleContactPage = async ({
                                 <span className="font-bold">Contact Details</span>
                             </div>
                             <div className="flex items-center gap-4">
-                                <h1 className="text-xl font-semibold">{contact.fname} {contact.lname}</h1>
+                                <h1 className="text-xl font-semibold">{contact.firstName} {contact.lastName}</h1>
                                 <FormContainer table="contacts"
                                     type="update"
                                     data={contact}
@@ -99,7 +99,7 @@ const SingleContactPage = async ({
                                             </Link>
                                         </td>
                                         <td>{organization.type}</td>
-                                        <td>{organization.address || "N/A"}</td>
+                                        <td>{organization.addressId || "N/A"}</td>
                                     </tr>
                                 )}
                                 data={contact.organizations}
@@ -112,7 +112,7 @@ const SingleContactPage = async ({
                     {/* EVENTS TABLE */}
                     <div className="mb-8">
                         <h1 className="text-xl font-semibold mb-4">Events</h1>
-                        {contact.events.length > 0 ? (
+                        {contact.managedEvents.length > 0 ? (
                             <Table
                                 columns={[
                                     { header: "Event Name", accessor: "name" },
@@ -127,12 +127,12 @@ const SingleContactPage = async ({
                                                 {event.name}
                                             </Link>
                                         </td>
-                                        <td>{new Date(event.startDate).toLocaleDateString()}</td>
-                                        <td>{new Date(event.endDate).toLocaleDateString()}</td>
-                                        <td>{event.gross_price ? `$${event.gross_price.toFixed(2)}` : "N/A"}</td>
+                                        <td>{/* new Date(event.startDate).toLocaleDateString() */}</td>
+                                        <td>{/* new Date(event.endDate).toLocaleDateString() */}</td>
+                                        <td>{/* event.gross_price ? `$${event.gross_price.toFixed(2)}` : "N/A" */}</td>
                                     </tr>
                                 )}
-                                data={contact.events}
+                                data={contact.managedEvents}
                             />
                         ) : (
                             <p className="text-gray-500 text-sm">No events found for this contact.</p>
@@ -142,7 +142,7 @@ const SingleContactPage = async ({
                     {/* PITCHED PRODUCTS TABLE */}
                     <div className="mb-8">
                         <h1 className="text-xl font-semibold mb-4">Pitched Products</h1>
-                        {contact.products.length > 0 ? (
+                        {contact.productsAsLeader.length > 0 ? (
                             <Table
                                 columns={[
                                     { header: "Product Name", accessor: "name" },
@@ -156,11 +156,11 @@ const SingleContactPage = async ({
                                                 {product.name}
                                             </Link>
                                         </td>
-                                        <td>{product.category}</td>
+                                        <td>{product.type}</td>
                                         <td className="max-w-xs truncate">{product.description}</td>
                                     </tr>
                                 )}
-                                data={contact.products}
+                                data={contact.productsAsLeader}
                             />
                         ) : (
                             <p className="text-gray-500 text-sm">No pitched products found for this contact.</p>
