@@ -1,10 +1,6 @@
-import Link from "next/link"
-import Image from "next/image"
 import prisma from "@/lib/prisma"
-import { Product } from "@/generated/prisma"
-import { notFound } from "next/navigation"
 import FormContainer from "@/components/FormContainer"
-import { getAgentName } from "@/lib/utils"
+import { getElectronicAddressType, getPersonName, getPhoneType, getProductCategoryName } from "@/lib/utils";
 
 const SingleProductPage = async ({
     params,
@@ -14,87 +10,237 @@ const SingleProductPage = async ({
 
     const { id } = await params;
 
-    const product: Product | null = await prisma.product.findUnique({
-        where: { id: id },
+    const product = await prisma.product.findUnique({
+        where: { entityId: id },
+    })
+    if (!product) {
+        return <div>Product not found.</div>;
+    }
+    const productTypeId = await prisma.productType.findUnique({
+        where: { id: product.productTypeId },
+    })
+    const productType = await prisma.productType.findUnique({
+        where: { id: product.productTypeId },
+    })
+    const table = productTypeId?.description === "Entertainer - Music" || "Entertainer - Non-music"
+        ? "entertainers"
+        : "products";
+
+    const bookingPerson = await prisma.person.findUnique({
+        where: { entityId: product?.bookingContactPersonEntityId || "" },
+    })
+    const bookingAddress = await prisma.address.findFirst({
+        where: { entityId: bookingPerson?.entityId || "" },
+    });
+    const bookingState = await prisma.state.findUnique({
+        where: { id: bookingAddress?.stateId || "" },
+    });
+    const bookingCountry = await prisma.country.findUnique({
+        where: { id: bookingAddress?.countryId || "" },
+    });
+
+    const productCategories = await prisma.productCategory.findMany({
+        where: { entityId: id || "" },
+    });
+
+    const phone = await prisma.phone.findMany({
+        where: { entityId: id || "" },
+    });
+    const electronicAddress = await prisma.electronicAddress.findMany({
+        where: { entityId: id || "" },
+    });
+
+    /* Entertainer Data */
+    const entertainer = await prisma.entertainer.findUnique({
+        where: { productEntityId: id || "" },
+    })
+    const agent = await prisma.person.findUnique({
+        where: { entityId: entertainer?.agentPersonEntityId || "" },
+    })
+    const leader = await prisma.person.findUnique({
+        where: { entityId: entertainer?.leaderPersonEntityId || "" },
     })
 
-    if (!product) {
-        return notFound();
-    }
+    const data = {
+        ...product,
+        entertainer,
+        agent
+    };
+
     return (
-        <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
-            {/* LEFT */}
-            <div className="w-full xl:w-2/3">
-                {/* TOP */}
-                <div className="flex flex-col lg:flex-row gap-4">
-                    {/* USER INFO CARD */}
-                    <div className="bg-lightorange py-6 px-4 rounded-md flex-1 flex gap-4">
-                        <div className="flex flex-1 flex-col justify-between gap-4">
-                            <div className='flex justify-between items-center'>
-                                <span className="font-bold">Product Details</span>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <h1 className="text-xl font-semibold">{product.name}</h1>
-                                <FormContainer table="products"
-                                    type="update"
-                                    data={product}
-                                />
-                            </div>
-                            <p className="text-sm">
-                                {product.description}
-                            </p>
-                            <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/company.png" alt="" width={14} height={14} />
-                                    <span>Organization, LLC</span>
+        <div className="flex-1 p-4 flex flex-col gap-4">
+            {/* TOP SECTION - CONTACT DETAILS */}
+            <div className="w-full xl:w-2/3 bg-white p-6 rounded-md shadow">
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-2xl font-bold">{product.name}</h1>
+                    <FormContainer table={table} type="update" data={data} />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Left Column */}
+                    <div className="space-y-8">
+
+                        {/* Electronic Addresses */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Electronic Addresses</h3>
+                            {electronicAddress.length > 0 ? (
+                                <div className="space-y-1">
+                                    {electronicAddress.map((ea) => (
+                                        <p key={ea.id} className="text-sm">
+                                            {ea.electronicAddress} [{getElectronicAddressType(ea.electronicAddressTypeId)}]
+                                        </p>
+                                    ))}
                                 </div>
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/agent.png" alt="" width={14} height={14} />
-                                    <span>{getAgentName(product.agentId)}</span>
-                                </div>
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/mail.png" alt="" width={14} height={14} />
-                                    <span>user@gmail.com</span>
-                                </div>
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/phone.png" alt="" width={14} height={14} />
-                                    <span>(614) 123-4567</span>
-                                </div>
-                            </div>
+                            ) : (
+                                <p className="text-sm text-gray-400">No electronic addresses available</p>
+                            )}
                         </div>
+
+                        {/* Booking Contact */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Booking Contact</h3>
+                            {bookingPerson?.firstName} {bookingPerson?.lastName}
+                            <div></div>
+                            {bookingAddress ? (
+                                <p className="text-sm">
+                                    {bookingAddress.address1}, {bookingAddress.address2}
+                                    <br />
+                                    {bookingAddress.city}, {bookingState?.code} {bookingAddress.zip} {bookingAddress.zipExtension}
+                                    <br />
+                                    {bookingCountry?.description}
+                                </p>
+                            ) : (
+                                <p className="text-sm text-gray-400">No address available</p>
+                            )}
+                        </div>
+
+                        {/* Phone Numbers */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Phone Numbers</h3>
+                            {phone.length > 0 ? (
+                                <div className="space-y-1">
+                                    {phone.map((p) => (
+                                        <p key={p.id} className="text-sm">
+                                            {p.phoneNumber} [{getPhoneType(p.phoneTypeId)}]
+                                        </p>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-400">No phone numbers available</p>
+                            )}
+                        </div>
+
+                        {/* Gross Price */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Gross Price</h3>
+                            <p className="text-sm">{product.grossPrice}</p>
+                        </div>
+
+                        {/* Fee Percent */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Fee Percent</h3>
+                            <p className="text-sm">{product.feePercent}%</p>
+                        </div>
+
+                        {/* Available */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Available</h3>
+                            <p className="text-sm">{product?.available}</p>
+                        </div>
+
+                        {/* Note */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Note</h3>
+                            <p className="text-sm whitespace-pre-wrap">{product.note || "No notes available"}</p>
+                        </div>
+
                     </div>
 
-                </div>
-                {/* BOTTOM */}
-                <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
-                    <h1>Organization Affiliation</h1>
-                    <h1>Tasks</h1>
-                    <h1>Log</h1>
-                    <h1>Events</h1>
-                    <h1>Pitched Products</h1>
-                    <h1>Documents</h1>
-                </div>
-            </div>
-            {/* RIGHT */}
-            <div className="w-full xl:w-1/3 flex flex-col gap-4">
-                <div className="bg-white p-4 rounded-md">
-                    <h1 className="text-xl font-semibold">Table Links</h1>
-                    <div className="mt-4 flex gap-4 flex-wrap text-xs font-medium">
-                        <Link className="p-3 rounded-md bg-orange" href="/">
-                            Organization&apos;s Contacts
-                        </Link>
-                        <Link className="p-3 rounded-md bg-lightorange" href="/">
-                            Contact&apos;s Tasks
-                        </Link>
-                        <Link className="p-3 rounded-md bg-orange" href="/">
-                            Contact&apos;s Events
-                        </Link>
-                        <Link className="p-3 rounded-md bg-lightorange" href="/">
-                            Contact&apos;s Pitched Products
-                        </Link>
-                        <Link className="p-3 rounded-md bg-orange" href="/">
-                            Contact&apos;s Documents
-                        </Link>
+                    {/* Right Column */}
+                    <div className="space-y-8">
+                        {/* Product Type */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Product Type</h3>
+                            <p className="text-sm">{productType?.description || ""}</p>
+                        </div>
+
+                        {/* Categories */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Categories</h3>
+                            {productCategories.length > 0 ? (
+                                <div className="space-y-1">
+                                    {productCategories.map((pc) => (
+                                        <p key={pc.entityId} className="text-sm">
+                                            {getProductCategoryName(pc.productTypeCategoryId)}
+                                        </p>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-400">No categories assigned</p>
+                            )}
+                        </div>
+
+                        {/* Description */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Description</h3>
+                            <p className="text-sm whitespace-pre-wrap">{product.description || ""}</p>
+                        </div>
+
+                        {/* Entertainer-specific fields */}
+                        {table === "entertainers" && (
+                            <>
+                                {/* Leader */}
+                                <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                    <h3 className="text-sm font-semibold text-gray-600 mb-1">Leader</h3>
+                                    {leader ? (
+                                        <p className="text-sm">{leader.firstName} {leader.lastName}</p>
+                                    ) : (
+                                        <p className="text-sm text-red-400">No leader assigned</p>
+                                    )}
+                                </div>
+
+                                {/* Size */}
+                                <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                    <h3 className="text-sm font-semibold text-gray-600 mb-1">Size</h3>
+                                    <p className="text-sm">{entertainer?.bandSize || ""}</p>
+                                </div>
+
+                                {/* Bio */}
+                                <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                    <h3 className="text-sm font-semibold text-gray-600 mb-1">Bio</h3>
+                                    <p className="text-sm whitespace-pre-wrap">{entertainer?.bio || ""}</p>
+                                </div>
+
+                                {/* Special Requirements */}
+                                <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                    <h3 className="text-sm font-semibold text-gray-600 mb-1">Special Requirements</h3>
+                                    {/* <p className="text-sm">{entertainer?.bandSize || ""}</p> */}
+                                </div>
+
+                                {/* Business Cards */}
+                                <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                    <h3 className="text-sm font-semibold text-gray-600 mb-1">Business Cards</h3>
+                                    {/* <p className="text-sm">{entertainer?.bandSize || ""}</p> */}
+                                </div>
+
+                                {/* Exclusive */}
+                                <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                    <h3 className="text-sm font-semibold text-gray-600 mb-1">Active</h3>
+                                    <p className="text-sm">{entertainer?.isExclusive || ""}</p>
+                                </div>
+
+                                {/* Agent */}
+                                <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                    <h3 className="text-sm font-semibold text-gray-600 mb-1">Agent</h3>
+                                    {agent ? (
+                                        <p className="text-sm">{agent.firstName} {agent.lastName}</p>
+                                    ) : (
+                                        <p className="text-sm text-red-400">No agent assigned</p>
+                                    )}
+                                </div>
+                            </>
+                        )}
+
                     </div>
                 </div>
             </div>

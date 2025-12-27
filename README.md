@@ -1,4 +1,10 @@
-CAO Instructions to Launch App with Docker
+# Current Console Commands
+npx prisma generate
+npm run build
+npx prisma migrate dev --name init
+npm run dev
+
+## OLD Instructions to Launch App with Docker
 
 1. # Clone github repository to local folder /app
     - "git clone https://github.com/clemens72/cao app"

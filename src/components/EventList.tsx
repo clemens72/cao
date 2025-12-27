@@ -19,9 +19,9 @@ const EventList = async ({ dateParam
     })
 
     return data.map(event => (
-        <div className="p-5 rounded-md border-2 border-gray border-t-4 odd:border-t-orange even:border-t-lightorange" key={event.id}>
+        <div className="p-5 rounded-md border-2 border-gray border-t-4 odd:border-t-orange even:border-t-lightorange" key={event.entityId}>
             <div className='flex items-center justify-between'>
-                <Link href={`/list/events/${event.id}`}>
+                <Link href={`/list/events/${event.entityId}`}>
                 <h1 className='font-semibold'>{event.name}</h1>
                 </Link>
                 {/* <span className='text-xs'>{event.startDate.toLocaleTimeString('en-US',{
@@ -30,7 +30,7 @@ const EventList = async ({ dateParam
                     hour12:false
                 })}</span> */}
             </div>
-            <p className='text-darkgray'>{event.note}</p>
+            <p className='text-darkgray whitespace-pre-wrap'>{event.note}</p>
         </div>
     ))
 }

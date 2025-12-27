@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Dispatch, useState, SetStateAction, useActionState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FormContainerProps } from "./FormContainer";
-import { deleteContact, deleteEvent, deleteOrganization, deleteProduct, deleteTask } from "@/lib/actions";
+import { deleteContact, deleteEvent, deleteOrganization, deleteProduct, deleteTask, deleteEntertainer } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
@@ -12,6 +12,7 @@ const deleteActionMap = {
   contacts: deleteContact,
   organizations: deleteOrganization,
   products: deleteProduct,
+  entertainers: deleteEntertainer,
   events: deleteEvent,
   /* reports: deleteReport, */
   tasks: deleteTask,
@@ -24,6 +25,9 @@ const OrganizationForm = dynamic(() => import("./forms/OrganizationForm"), {
   loading: () => <h1>Loading...</h1>,
 });
 const ProductForm = dynamic(() => import("./forms/ProductForm"), {
+  loading: () => <h1>Loading...</h1>,
+});
+const EntertainerForm = dynamic(() => import("./forms/EntertainerForm"), {
   loading: () => <h1>Loading...</h1>,
 });
 const EventForm = dynamic(() => import("./forms/EventForm"), {
@@ -48,6 +52,7 @@ const forms: {
   organizations: (type, setOpen, data, relatedData) => <OrganizationForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
   events: (type, setOpen, data, relatedData) => <EventForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
   products: (type, setOpen, data, relatedData) => <ProductForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
+  entertainers: (type, setOpen, data, relatedData) => <EntertainerForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
   /* reports: (type, setOpen, data) => <ReportForm type={type} setOpen={setOpen} data={data} />, */
   tasks: (type, setOpen, data, relatedData) => <TaskForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
 };
@@ -64,13 +69,22 @@ const FormModel = ({
     relatedData?: any
   }) => {
 
-  const size = type === "create" ? "w-8 h-8" : "w-7 h-7";
+  const size =
+    type === "create"
+      ? "w-8 h-8"
+      : "w-7 h-7";
   const bgColor =
     type === "create"
       ? "bg-lightorange hover:bg-orange"
       : type === "update"
         ? "hover:bg-orange"
         : "hover:bg-lightred"
+  const text =
+    type != "delete" && type != "update" && table === "products"
+      ? "Product"
+      : type != "delete" && type != "update" && table === "entertainers"
+        ? "Entertainer"
+        : ""
 
   const [open, setOpen] = useState(false);
 
@@ -84,7 +98,7 @@ const FormModel = ({
 
     useEffect(() => {
       if (state.success) {
-        toast("Report deleted successfully!", { type: "success" })
+        toast(`${table.charAt(0).toUpperCase() + table.slice(1, -1)} deleted successfully!`, { type: "success" })
         setOpen(false);
         router.refresh();
       }
@@ -111,9 +125,9 @@ const FormModel = ({
   return (
     <>
       <button
-        className={`${size} flex items-center justify-center rounded-full ${bgColor}`}
+        className={`${size} w-fit p-2 flex items-center justify-center rounded-full ${bgColor}`}
         onClick={() => setOpen(true)}>
-        <Image src={`/${type}.png`} alt="" width={16} height={16} />
+        <Image src={`/${type}.png`} alt="" width={16} height={16} />{text}
       </button>
       {open && (
         <div 
@@ -121,7 +135,7 @@ const FormModel = ({
           onClick={() => setOpen(false)}
         >
           <div 
-            className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] lx:w-[50]% 2xl:w-[40%]"
+            className="bg-white p-4 rounded-md relative w-[90%] md:w-[80%] lg:w-[70%] lx:w-[60]% 2xl:w-[50%]"
             onClick={(e) => e.stopPropagation()}
           >
             <Form />

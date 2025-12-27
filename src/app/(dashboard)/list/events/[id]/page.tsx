@@ -1,11 +1,6 @@
-import Link from "next/link"
-import Image from "next/image"
 import prisma from "@/lib/prisma"
-import { Event, Product, Organization } from "@/generated/prisma"
-import { notFound } from "next/navigation"
 import FormContainer from "@/components/FormContainer"
-import Table from "@/components/Table"
-import { formatDate } from "@/lib/utils"
+import { formatDate, getPersonName } from "@/lib/utils"
 
 const SingleEventPage = async ({
     params,
@@ -15,113 +10,292 @@ const SingleEventPage = async ({
 
     const { id } = await params;
 
+    const entity = await prisma.entity.findUnique({
+        where: { id: id },
+    })
     const event = await prisma.event.findUnique({
-        where: { id },
-        include: {
-            products: true
-        }
+        where: { entityId: id },
+    })
+    if (!event) {
+        return <div>Event not found.</div>;
+    }
+    const eventType = await prisma.eventType.findUnique({
+        where: { id: event.eventTypeId || "" },
+    })
+    const eventStatus = await prisma.eventStatus.findUnique({
+        where: { id: event.eventStatusId || "" },
     })
 
-    if (!event) {
-        return notFound();
+    const client = await prisma.person.findUnique({
+        where: { entityId: event.clientPersonEntityId || "" },
+    })
+    const venue = await prisma.organization.findUnique({
+        where: { entityId: event.venueOrganizationEntityId || "" },
+    })
+    const billingContact = await prisma.person.findUnique({
+        where: { entityId: event.billingContactPersonEntityId || "" },
+    })
+    const agent = await prisma.person.findUnique({
+        where: { entityId: event.agentPersonEntityId || "" },
+    })
+    const contacts = await prisma.eventPerson.findMany({
+        where: { eventEntityId: id },
+    })
+
+    const data = {
+        entityId: id,
+        event,
+        eventType,
+        eventStatus,
+        client,
+        venue,
+        billingContact,
+        agent,
+        contacts,
     }
 
     return (
-        <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
-            {/* LEFT */}
-            <div className="w-full xl:w-2/3">
-                {/* TOP */}
-                <div className="flex flex-col lg:flex-row gap-4">
-                    {/* USER INFO CARD */}
-                    <div className="bg-lightorange py-6 px-4 rounded-md flex-1 flex gap-4">
-                        <div className="flex flex-1 flex-col justify-between gap-4">
-                            <div className='flex justify-between items-center'>
-                                <span className="font-bold">Event Details</span>
+        <div className="flex-1 p-4 flex flex-col gap-4">
+            <div className="flex flex-col xl:flex-row gap-4">
+                {/* TOP SECTION - CONTACT DETAILS */}
+                <div className="w-full xl:w-2/3 bg-white p-6 rounded-md shadow">
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-2xl font-bold">{event.name}</h1>
+                        <FormContainer table="events" type="update" data={data} />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Left Column */}
+                        <div className="space-y-4">
+                            {/* Client */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Client</h3>
+                                <p className="text-sm">{client?.firstName} {client?.lastName}</p>
                             </div>
-                            <div className="flex items-center gap-4">
-                                <h1 className="text-xl font-semibold">{event.name}</h1>
-                                <FormContainer table="events"
-                                    type="update"
-                                    data={event}
-                                />
+
+                            {/* Venue */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Venue</h3>
+                                <p className="text-sm">{venue?.name}</p>
                             </div>
-                            <p className="text-sm">
-                                {formatDate(event.startDate)}
-                            </p>
-                            <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/company.png" alt="" width={14} height={14} />
-                                    <span>Organization, LLC</span>
+
+                            {/* Location */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Location</h3>
+                                <p className="text-sm">{event.location}</p>
+                            </div>
+
+                            {/* Start Date */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Start Date</h3>
+                                <p className="text-sm">{formatDate(event.startDate)}</p>
+                            </div>
+
+                            {/* End Date */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">End Date</h3>
+                                <p className="text-sm">{formatDate(event.endDate)}</p>
+                            </div>
+
+                            {/* Event Type */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Event Type</h3>
+                                <p className="text-sm">{eventType?.description}</p>
+                            </div>
+
+                            {/* Billing Contact */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Billing Contact</h3>
+                                {billingContact ? (
+                                    <p className="text-sm">{billingContact.firstName} {billingContact.lastName}</p>
+                                ) : (
+                                    <p className="text-sm text-red-400">No billing contact assigned</p>
+                                )}
+                            </div>
+
+                            {/* Contacts */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Contacts</h3>
+                                <div className="text-sm space-y-1">
+                                    {contacts.length > 0 ? (
+                                        contacts.map((contact) => (
+                                            <p key={contact.id}>{getPersonName(contact.personEntityId)}</p>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-red-400">No contacts assigned</p>
+                                    )}
                                 </div>
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/agent.png" alt="" width={14} height={14} />
-                                    <span>Agent Johnson</span>
+                            </div>
+
+                            {/* Budget */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Budget</h3>
+                                <p className="text-sm">{event.budget}</p>
+                            </div>
+
+                            {/* Created Date */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Created Date</h3>
+                                <p className="text-sm">{formatDate(entity?.createDate)}</p>
+                            </div>
+
+                            {/* Agent */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Agent</h3>
+                                {agent ? (
+                                    <p className="text-sm">{agent.firstName} {agent.lastName}</p>
+                                ) : (
+                                    <p className="text-sm text-red-400">No agent assigned</p>
+                                )}
+                            </div>
+
+                            {/* Note */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Note</h3>
+                                <p className="text-sm whitespace-pre-wrap">{event.note || "No notes available"}</p>
+                            </div>
+
+                        </div>
+
+                        {/* Right Column */}
+                        <div className="space-y-4">
+                            {/* Event Status */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Event Status</h3>
+                                <p className="text-sm">{eventStatus?.description}</p>
+                            </div>
+
+                            {/* Contract Sent Date */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Contract Sent Date</h3>
+                                <p className="text-sm">{formatDate(event.contractSentDate)}</p>
+                            </div>
+
+                            {/* Contract Returned Date */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Contract Returned Date</h3>
+                                <p className="text-sm">{formatDate(event.contractReturnedDate)}</p>
+                            </div>
+
+                            {/* Event Form */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Event Form</h3>
+                                <p className="text-sm">{event.eventForm}</p>
+                            </div>
+
+                            {/* Attendance */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Attendance</h3>
+                                <p className="text-sm">{event.attendance}</p>
+                            </div>
+
+                            {/* Guest Arrival Time */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Guest Arrival Time</h3>
+                                <p className="text-sm">{event.guestArrivalTime}</p>
+                            </div>
+
+                            {/* Report To */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Report To</h3>
+                                <p className="text-sm">{event.reportTo}</p>
+                            </div>
+
+                            {/* Break Area */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Break Area</h3>
+                                <p className="text-sm">{ }</p>
+                            </div>
+
+                            {/* Equipment Storage */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">Equipment Storage</h3>
+                                <p className="text-sm">{ }</p>
+                            </div>
+
+                            {/* Total Deposit */}
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6 border-t pt-4 border-black">
+                                <h3 className="text-lg font-semibold text-gray-600 mb-1">Total Deposit</h3>
+                                <p className="text-lg">$1000.00</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                {/* RIGHT SECTION - FINANCIAL DETAILS */}
+                <div className="w-full xl:w-1/3 flex flex-col gap-4">
+                    <div className="bg-white p-6 rounded-md shadow">
+                        <h1 className="text-xl font-bold text-gray-800 mb-6">Financial Details</h1>
+
+                        <div className="space-y-6 text-center">
+                            {/* Row 1 - COGS */}
+                            <div className="pb-4 border-b border-gray-200">
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">COGS</p>
+                                        <p className="text-base font-semibold text-gray-800">$0.00</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">Paid</p>
+                                        <p className="text-base font-semibold text-gray-800">$0.00</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">Balance</p>
+                                        <p className="text-base font-semibold text-red-600">$0.00</p>
+                                    </div>
                                 </div>
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/mail.png" alt="" width={14} height={14} />
-                                    <span>user@gmail.com</span>
+                            </div>
+
+                            {/* Row 2 - Booking Fees */}
+                            <div className="pb-4 border-b border-gray-200">
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">Booking Fees</p>
+                                        <p className="text-base font-semibold text-gray-800">$0.00</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">Recorded</p>
+                                        <p className="text-base font-semibold text-gray-800">$0.00</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">Balance</p>
+                                        <p className="text-base font-semibold text-red-600">$0.00</p>
+                                    </div>
                                 </div>
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/phone.png" alt="" width={14} height={14} />
-                                    <span>(614) 123-4567</span>
+                            </div>
+
+                            {/* Row 3 - Totals */}
+                            <div className="bg-gray-50 p-3 rounded-lg">
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <p className="text-xs font-semibold text-gray-700 mb-1">EVENT COST</p>
+                                        <p className="text-lg font-bold text-gray-900">$0.00</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-semibold text-gray-700 mb-1">RECEIVED</p>
+                                        <p className="text-lg font-bold text-green-600">$0.00</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-semibold text-gray-700 mb-1">BALANCE</p>
+                                        <p className="text-lg font-bold text-red-600">$0.00</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                </div>
-                {/* BOTTOM */}
-                <div className="mt-4 bg-white rounded-md p-4">
-                    {/* PRODUCTS TABLE */}
-                    <div className="mb-8">
-                        <h1 className="text-xl font-semibold mb-4">Products</h1>
-                        {event.products.length > 0 ? (
-                            <Table
-                                columns={[
-                                    { header: "Product Name", accessor: "name" },
-                                    { header: "Category", accessor: "category" },
-                                    { header: "Description", accessor: "description" },
-                                ]}
-                                renderRow={(product: Product) => (
-                                    <tr key={product.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightpurple">
-                                        <td className="py-4">
-                                            <Link href={`/list/products/${product.id}`} className="font-medium hover:underline">
-                                                {product.name}
-                                            </Link>
-                                        </td>
-                                        <td>{product.name}</td>
-                                        <td className="max-w-xs truncate">{product.description}</td>
-                                    </tr>
-                                )}
-                                data={event.products}
-                            />
-                        ) : (
-                            <p className="text-gray-500 text-sm">No products found for this event.</p>
-                        )}
+                    <div className="bg-white p-6 rounded-md shadow">
+                        <div className="justify-between items-center mb-6 flex">
+                            <h1 className="text-xl font-bold text-gray-800 mb-6">Tasks</h1>
+                            <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
+                        </div>
                     </div>
 
-                </div>
-            </div>
-            {/* RIGHT */}
-            <div className="w-full xl:w-1/3 flex flex-col gap-4">
-                <div className="bg-white p-4 rounded-md">
-                    <h1 className="text-xl font-semibold">Table Links</h1>
-                    <div className="mt-4 flex gap-4 flex-wrap text-xs font-medium">
-                        <Link className="p-3 rounded-md bg-orange" href={`/list/contacts?organizationId=${1}`}>
-                            Organization&apos;s Contacts
-                        </Link>
-                        <Link className="p-3 rounded-md bg-lightorange" href="/">
-                            Contact&apos;s Tasks
-                        </Link>
-                        <Link className="p-3 rounded-md bg-orange" href="/">
-                            Contact&apos;s Events
-                        </Link>
-                        <Link className="p-3 rounded-md bg-lightorange" href="/">
-                            Contact&apos;s Pitched Products
-                        </Link>
-                        <Link className="p-3 rounded-md bg-orange" href="/">
-                            Contact&apos;s Documents
-                        </Link>
+                    <div className="bg-white p-6 rounded-md shadow">
+                        <div className="justify-between items-center mb-6 flex">
+                            <h1 className="text-xl font-bold text-gray-800 mb-6">Log</h1>
+                            <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
+                        </div>
                     </div>
                 </div>
             </div>

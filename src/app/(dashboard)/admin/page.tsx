@@ -10,7 +10,7 @@ import { ITEM_PER_PAGE } from "@/lib/settings"
 import { auth } from "@clerk/nextjs/server"
 import Image from "next/image"
 import Link from "next/link"
-import { formatDate, getAgentName } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 
 type TaskList = Task
 type SearchParams = { [key: string]: string | string[] | undefined }
@@ -43,13 +43,13 @@ const AdminPage = async ({
     }
   ]
 
-  const renderRow = (item: TaskList) => (
+  /* const renderRow = (item: TaskList) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
     >
       <td className="font-semibold pl-2">{item.note}</td>
-      <td className="hidden md:table-cell">{getAgentName(item.agentId)}</td>
+      <td className="hidden md:table-cell">{getPersonName(item.agentId)}</td>
       <td className="hidden md:table-cell">{formatDate(item.createdAt)}</td>
       <td>
         <div className="flex items-center gap-2">
@@ -93,7 +93,7 @@ const AdminPage = async ({
       skip: ITEM_PER_PAGE * (p - 1),
     }),
     prisma.task.count()
-  ])
+  ]) */
 
   return (
     <div className='p-4 flex gap-4 flex-col md:flex-row'>
@@ -108,7 +108,7 @@ const AdminPage = async ({
         </div>
         <div className='bg-white p-4 rounded-md flex-1 m-4 mt-4'>
           {/* TASKS */}
-          <div className="flex items-center justify-between">
+          {/* <div className="flex items-center justify-between">
             <h1 className="hidden md:block text-lg font-semibold">All Tasks</h1>
             <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
               <TableSearch />
@@ -124,17 +124,17 @@ const AdminPage = async ({
                 )}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
         {/* LIST */}
-        <Table columns={columns} renderRow={renderRow} data={data} />
+        {/* <Table columns={columns} renderRow={renderRow} data={data} /> */}
         {/* PAGINATION */}
-        <Pagination page={p} count={count} />
+        {/* <Pagination page={p} count={count} /> */}
       </div>
       {/* RIGHT */}
-      <div className="w-full lg:w-1/3 flex flex-col gap-8">
+      {/* <div className="w-full lg:w-1/3 flex flex-col gap-8">
         <EventCalendarContainer searchParams={searchParams} />
-      </div>
+      </div> */}
     </div>
   )
 }

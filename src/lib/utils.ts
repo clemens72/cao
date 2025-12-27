@@ -13,54 +13,65 @@ export function formatDate(date: Date | string | null | undefined): string {
   return `${month}-${day}-${year}`;
 }
 
-export async function getAgentName(agentId: string | null): Promise<string> {
-  if (!agentId) return "Unknown";
+export function formatDateTimeLocal(date: Date | string | null | undefined): string {
+  if (!date) return "";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "";
+  
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
 
-  const agent = await prisma.user.findUnique({
-    where: { id: agentId },
+export async function getEntityType(entityTypeId: string | null): Promise<string> {
+  if (!entityTypeId) return "Unknown";
+  const entityType = await prisma.entityType.findUnique({
+    where: { id: entityTypeId },
+    select: { description: true },
+  });
+  return entityType?.description || "Unknown";
+}
+
+export async function getPhoneType(phoneTypeId: string | null): Promise<string> {
+  if (!phoneTypeId) return "Unknown";
+  const phoneType = await prisma.phoneType.findUnique({
+    where: { id: phoneTypeId },
+    select: { description: true },
+  });
+  return phoneType?.description || "Unknown";
+}
+
+export async function getElectronicAddressType(eaTypeId: string | null): Promise<string> {
+  if (!eaTypeId) return "Unknown";
+  const eaType = await prisma.electronicAddressType.findUnique({
+    where: { id: eaTypeId },
+    select: { description: true },
+  });
+  return eaType?.description || "Unknown";
+}
+
+export async function getPersonName(id: string | null): Promise<string> {
+  if (!id) return "Unknown";
+
+  const p = await prisma.person.findUnique({
+    where: { entityId: id },
     select: { firstName: true, lastName: true },
   });
 
-  if (!agent) return "Unknown";
+  if (!p) return "Unknown";
 
-  return `${agent.firstName} ${agent.lastName}` || "No Name";
+  return `${p.firstName} ${p.lastName}` || "No Name";
 }
 
-export async function getContactName(contactId: string | null): Promise<string> {
-  if (!contactId) return "Unknown";
-
-  const contact = await prisma.user.findUnique({
-    where: { id: contactId },
-    select: { firstName: true, lastName: true },
+export async function getProductCategoryName(id: string | null): Promise<string> {
+  if (!id) return "Unknown";
+  const category = await prisma.productTypeCategory.findUnique({
+    where: { id },
+    select: { description: true },
   });
-
-  if (!contact) return "Unknown";
-
-  return `${contact.firstName} ${contact.lastName}` || "No Name";
-}
-
-export async function getContactNumber(contactId: string | null): Promise<string> {
-  if (!contactId) return "Unknown";
-
-  const contact = await prisma.user.findUnique({
-    where: { id: contactId },
-    select: { phone: true },
-  });
-
-  if (!contact) return "Unknown";
-
-  return contact.phone || "No Phone";
-}
-
-export async function getContactEmail(contactId: string | null): Promise<string> {
-  if (!contactId) return "Unknown";
-
-  const contact = await prisma.user.findUnique({
-    where: { id: contactId },
-    select: { email: true },
-  });
-
-  if (!contact) return "Unknown";
-
-  return contact.email || "No Email";
+  return category?.description || "Unknown";
 }

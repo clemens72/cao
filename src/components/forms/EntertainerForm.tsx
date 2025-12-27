@@ -3,14 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
-import { productSchema } from "@/lib/formValidationSchemas";
-import { createProduct, updateProduct } from "@/lib/actions";
+import { entertainerSchema } from "@/lib/formValidationSchemas";
+import { createEntertainer, updateEntertainer } from "@/lib/actions";
 import { Dispatch, SetStateAction, startTransition, useActionState, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ClientSelector from "../ClientSelector";
 
-const ProductForm = ({
+const EntertainerForm = ({
     type,
     data,
     setOpen,
@@ -28,13 +28,13 @@ const ProductForm = ({
         formState: { errors },
         setValue,
     } = useForm({
-        resolver: zodResolver(productSchema),
+        resolver: zodResolver(entertainerSchema),
     })
 
     const [selectedBookingContactId, setSelectedBookingContactId] = useState<string>(data?.product?.bookingContactPersonEntityId || "");
 
     const [state, formAction] = useActionState(
-        type === "create" ? createProduct : updateProduct,
+        type === "create" ? createEntertainer : updateEntertainer,
         {
             success: false,
             error: false,
@@ -49,7 +49,7 @@ const ProductForm = ({
         };
         console.log(submitData);
         startTransition(() => {
-            formAction(submitData);
+            formAction(submitData as any);
         });
     });
 
@@ -57,21 +57,21 @@ const ProductForm = ({
 
     useEffect(() => {
         if (state.success) {
-            toast("Product " + (type === "create" ? " created" : " updated") + " successfully!", { type: "success" })
+            toast("Entertainer " + (type === "create" ? " created" : " updated") + " successfully!", { type: "success" })
             setOpen(false);
             router.refresh();
         }
 
     }, [state, router, setOpen, type])
 
-    const { contacts, productTypes, categories, electronicAddresses } = relatedData;
+    const { contacts, productTypes, categories, electronicAddresses, agents } = relatedData;
 
     return (
         <form className="flex flex-col h-full max-h-[90vh] overflow-hidden" onSubmit={onSubmit}>
             {/* FIXED HEADER */}
             <div className="pb-6 px-6 border-b">
                 <h1 className="text-2xl font-semibold text-gray-800">
-                    {type === "create" ? "New Product" : "Update Product"}
+                    {type === "create" ? "New Entertainer" : "Update Entertainer"}
                 </h1>
             </div>
 
@@ -154,6 +154,56 @@ const ProductForm = ({
                                 placeholder={"Description..."}
                             />
                         </div>
+
+                        <div className="pb-2 border-b border-gray-200">
+                            <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Bio</h2>
+                        </div>
+                        <div>
+                            <textarea
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-orange focus:border-orange"
+                                {...register("bio")}
+                                rows={4}
+                                defaultValue={data?.entertainer?.bio}
+                                placeholder={"Entertainer bio..."}
+                            />
+                        </div>
+
+                        <InputField label="Special Requirements" name="specialRequirements" defaultValue={data?.entertainer?.specialRequirements} register={register} error={errors?.specialRequirements} />
+
+                        <InputField label="Business Cards" name="businessCards" defaultValue={data?.entertainer?.businessCards} register={register} error={errors?.businessCards} />
+
+                        {/* Active */}
+
+                        <InputField label="Leader" name="leaderId" defaultValue={data?.entertainer?.leaderId} register={register} error={errors?.leaderId} />
+
+                        <InputField label="Size" name="size" defaultValue={data?.entertainer?.size} register={register} error={errors?.size} />
+
+                        {/* Exclusive */}
+
+                        <div>
+                            <label className="block text-xs text-gray-600 font-medium mb-1.5">Agent</label>
+                            <select
+                                className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
+                                {...register("agentId")}
+                                defaultValue={data?.entertainer?.agentPersonEntityId || ""}
+                            >
+                                <option value="">
+                                    Select an agent
+                                </option>
+                                {agents?.map((agent: { entityId: string; firstName: string; lastName: string }) => (
+                                    <option value={agent.entityId} key={agent.entityId}>
+                                        {agent.firstName} {agent.lastName}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.agentId?.message && (
+                                <p className="text-xs text-red-400">
+                                    {errors.agentId.message.toString()}
+                                </p>
+                            )}
+                        </div>
+
+
                     </div>
 
                 </div>
@@ -165,11 +215,11 @@ const ProductForm = ({
                     {state.error && <span className="text-red-500 text-sm font-medium">Something went wrong!</span>}
                 </div>
                 <button className="bg-orange hover:bg-orange/90 text-white py-2.5 px-8 rounded-md font-semibold transition-colors shadow-sm">
-                    {type === "create" ? "Create Product" : "Update Product"}
+                    {type === "create" ? "Create Entertainer" : "Update Entertainer"}
                 </button>
             </div>
         </form>
     )
 }
 
-export default ProductForm
+export default EntertainerForm

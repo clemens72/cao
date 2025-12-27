@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import InputField from "../InputField";
+import InputField, { PhoneFields, ElectronicAddressFields } from "../InputField";
 import { organizationSchema } from "@/lib/formValidationSchemas";
 import { createOrganization, updateOrganization } from "@/lib/actions";
 import { Dispatch, SetStateAction, startTransition, useActionState, useEffect } from "react";
@@ -55,7 +55,7 @@ const OrganizationForm = ({
 
     }, [state, router, setOpen, type])
 
-    const { contacts, agents } = relatedData;
+    const { states, countries, phoneTypes, organizationTypes, agents, electronicAddressTypes } = relatedData;
 
     return (
         <form className="flex flex-col h-full max-h-[90vh] overflow-hidden" onSubmit={onSubmit}>
@@ -71,7 +71,15 @@ const OrganizationForm = ({
                 {data && (<InputField
                     label="Id"
                     name="id"
-                    defaultValue={data?.id}
+                    defaultValue={data?.entityId}
+                    register={register}
+                    error={errors?.id}
+                    hidden
+                />)}
+                {data && (<InputField
+                    label="entityTypeId"
+                    name="entityTypeId"
+                    defaultValue={data?.entityTypeId}
                     register={register}
                     error={errors?.id}
                     hidden
@@ -84,10 +92,10 @@ const OrganizationForm = ({
                             <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Basic Information</h2>
                         </div>
 
-                        <InputField label="Name" name="name" defaultValue={data?.name} register={register} error={errors?.name} />
-                        <InputField label="Address Line 1" name="address1" defaultValue={data?.address1} register={register} error={errors?.address1} />
-                        <InputField label="Address Line 2" name="address2" defaultValue={data?.address2} register={register} error={errors?.address2} />
-                        <InputField label="City" name="city" defaultValue={data?.city} register={register} error={errors?.city} />
+                        <InputField label="Name" name="name" defaultValue={data?.organization?.name} register={register} error={errors?.name} />
+                        <InputField label="Address Line 1" name="address1" defaultValue={data?.address?.address1} register={register} error={errors?.address1} />
+                        <InputField label="Address Line 2" name="address2" defaultValue={data?.address?.address2} register={register} error={errors?.address2} />
+                        <InputField label="City" name="city" defaultValue={data?.address?.city} register={register} error={errors?.city} />
 
                         <div className="grid grid-cols-2 gap-3">
                             <div>
@@ -95,14 +103,14 @@ const OrganizationForm = ({
                                 <select
                                     className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
                                     {...register("state")}
-                                    defaultValue={data?.state}
+                                    defaultValue={data?.address?.stateId}
                                 >
                                     <option value="">Select State</option>
-                                    <option value="OH">Ohio</option>
-                                    <option value="NY">New York</option>
-                                    <option value="TX">Texas</option>
-                                    <option value="FL">Florida</option>
-                                    <option value="IL">Illinois</option>
+                                    {states?.map((state: { id: string; code: string; description: string }) => (
+                                        <option key={state.id} value={state.id}>
+                                            {state.code} - {state.description}
+                                        </option>
+                                    ))}
                                 </select>
                                 {errors.state?.message && (
                                     <p className="text-xs text-red-400">
@@ -111,7 +119,7 @@ const OrganizationForm = ({
                                 )}
                             </div>
                             <div>
-                                <InputField label="Zip" name="zip" defaultValue={data?.zip} register={register} error={errors?.zip} />
+                                <InputField label="Zip" name="zip" defaultValue={data?.address?.zip} register={register} error={errors?.zip} />
                             </div>
                         </div>
 
@@ -120,10 +128,14 @@ const OrganizationForm = ({
                             <select
                                 className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
                                 {...register("country")}
-                                defaultValue={data?.country}
+                                defaultValue={data?.address?.countryId}
                             >
-                                <option value="US">United States</option>
-                                <option value="CA">Canada</option>
+                                <option value="">Select Country</option>
+                                {countries?.map((country: { id: string; code: string; description: string }) => (
+                                    <option key={country.id} value={country.id}>
+                                        {country.code} - {country.description}
+                                    </option>
+                                ))}
                             </select>
                             {errors.country?.message && (
                                 <p className="text-xs text-red-400">
@@ -136,58 +148,47 @@ const OrganizationForm = ({
                             <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Contact Details</h2>
                         </div>
 
-                        <div>
-                            <label className="block text-xs text-gray-600 font-medium mb-1.5">Contact</label>
-                            <select
-                                className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
-                                {...register("contactId")}
-                                defaultValue={data?.contactId}
-                            >
-                                <option value="" disabled>
-                                    Select a contact
-                                </option>
-                                {contacts.map((contact: { id: number; firstName: string; lastName: string }) => (
-                                    <option value={contact.id} key={contact.id}>
-                                        {contact.firstName} {contact.lastName}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        <PhoneFields defaultPhones={data?.phones} register={register} errors={errors} phoneTypes={phoneTypes} />
+                        
+                        <ElectronicAddressFields defaultElectronicAddresses={data?.electronicAddress} register={register} errors={errors} electronicAddressTypes={electronicAddressTypes} />
 
-                        <InputField label="Phone Number" name="phone" defaultValue={data?.phone} register={register} error={errors?.phone} />
-                        <InputField label="Email" name="email" defaultValue={data?.email} register={register} error={errors?.email} />
-                        <InputField label="Resources" name="resources" defaultValue={data?.resources} register={register} error={errors?.resources} />
-
-                        <div>
-                            <label className="block text-xs text-gray-600 font-medium mb-1.5">Note</label>
-                            <textarea
-                                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-orange focus:border-orange"
-                                {...register("note")}
-                                rows={4}
-                                defaultValue={data?.note}
-                                placeholder={"Additional notes..."}
-                            />
-                        </div>
                     </div>
 
                     {/* Right Column */}
                     <div className="space-y-5">
                         <div className="pb-2 border-b border-gray-200">
+                            <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Notes</h2>
+                        </div>
+                        <div>
+                            <textarea
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-orange focus:border-orange"
+                                {...register("note")}
+                                rows={4}
+                                defaultValue={data?.organization?.note}
+                                placeholder={"Additional notes..."}
+                            />
+                        </div>
+
+                        <div className="pb-2 border-b border-gray-200">
                             <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Classification</h2>
                         </div>
 
                         <div>
-                            <label className="block text-xs text-gray-600 font-medium mb-1.5">Type</label>
+                            <label className="block text-xs text-gray-600 font-medium mb-1.5">Organization Type</label>
                             <select
                                 className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
-                                {...register("type")}
-                                defaultValue={data?.type}
+                                {...register("organizationTypes")}
+                                multiple
+                                size={6}
+                                defaultValue={data?.organizationTypes?.map((ot: any) => ot.organizationTypeId) || []}
                             >
-                                <option value="">Select Type</option>
-                                <option value="client">Client</option>
-                                <option value="vendor">Vendor</option>
-                                <option value="partner">Partner</option>
+                                {organizationTypes?.map((orgType: { id: string; description: string }) => (
+                                    <option key={orgType.id} value={orgType.id}>
+                                        {orgType.description}
+                                    </option>
+                                ))}
                             </select>
+                            <p className="text-xs text-gray-500 mt-1.5">Hold Ctrl/Cmd to select multiple</p>
                         </div>
 
                         <div>
@@ -195,26 +196,31 @@ const OrganizationForm = ({
                             <select
                                 className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
                                 {...register("agentId")}
-                                defaultValue={data?.agentId}
+                                defaultValue={data?.organization?.agentPersonEntityId || ""}
                             >
-                                <option value="" disabled>
+                                <option value="">
                                     Select an agent
                                 </option>
-                                {agents.map((agent: { id: number; firstName: string; lastName: string }) => (
-                                    <option value={agent.id} key={agent.id}>
+                                {agents?.map((agent: { entityId: string; firstName: string; lastName: string }) => (
+                                    <option value={agent.entityId} key={agent.entityId}>
                                         {agent.firstName} {agent.lastName}
                                     </option>
                                 ))}
                             </select>
+                            {errors.agentId?.message && (
+                                <p className="text-xs text-red-400">
+                                    {errors.agentId.message.toString()}
+                                </p>
+                            )}
                         </div>
 
-                        <InputField label="Referred by" name="referredBy" register={register} />
+                        <InputField label="Referred by" name="referral" defaultValue={data?.organization?.referredBy} register={register} />
 
                         <div className="pt-3 pb-2 border-b border-gray-200">
                             <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Membership</h2>
                         </div>
 
-                        <div>
+                        {/* <div>
                             <label className="block text-xs text-gray-600 font-medium mb-1.5">List Membership</label>
                             <select
                                 className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
@@ -222,14 +228,9 @@ const OrganizationForm = ({
                                 multiple
                                 size={6}
                             >
-                                <option value="member_a">Member A</option>
-                                <option value="member_b">Member B</option>
-                                <option value="member_c">Member C</option>
-                                <option value="member_d">Member D</option>
-                                <option value="member_e">Member E</option>
                             </select>
                             <p className="text-xs text-gray-500 mt-1.5">Hold Ctrl/Cmd to select multiple</p>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>

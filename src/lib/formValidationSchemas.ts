@@ -2,16 +2,27 @@ import { z } from "zod"
 
 export const contactSchema = z.object({
     id: z.string().optional(),
-    email: z.string().email({ message: "Invalid email address." }),
     firstName: z
         .string()
         .min(1, { message: "First name is required." }),
     lastName: z
         .string()
         .min(1, { message: "Last name is required." }),
-    phone: z.string().optional(),
-    address: z.string().optional(),
+    titleId: z.string().optional(),
+    address1: z.string().optional(),
+    address2: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zip: z.string().optional(),
+    country: z.string().optional(),
+    phones: z.array(z.object({
+        id: z.string().optional(),
+        phoneNumber: z.string(),
+        phoneTypeId: z.string(),
+    })).optional(),
     note: z.string().optional(),
+    referral: z.string().optional(),
+    jobTitle: z.string().optional(),
     agentId: z.string().min(1, { message: "Agent is required!" }),
 })
 
@@ -22,12 +33,25 @@ export const eventSchema = z.object({
     name: z
         .string()
         .min(1, { message: "First name is required." }),
-    gross_price: z.coerce.number({ message: "Gross price must be a number!" }),
-    note: z.string().optional(),
-    startDate: z.coerce.date({ message: "Start date is required!" }),
-    endDate: z.coerce.date({ message: "End date is required!" }),
-    contactId: z.string().min(1, { message: "Contact is required!" }),
+    clientId: z.string().min(1, { message: "Client is required!" }),
+    venueId: z.string().optional(),
+    location: z.string().optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    eventTypeId: z.string().optional(),
+    billingContactId: z.string().optional(),
+    budget: z.string().optional(),
     agentId: z.string().min(1, { message: "Agent is required!" }),
+    eventStatusId: z.string().optional(),
+    contractSentDate: z.string().optional(),
+    contractReturnedDate: z.string().optional(),
+    eventForm: z.enum(["YES", "NO", "N_A"], { message: "Event Form is required!" }).optional(),
+    attendance: z.string().optional(),
+    guestArrivalTime: z.string().optional(),
+    reportTo: z.string().optional(),
+    breakArea: z.string().optional(),
+    equipmentStorage: z.string().optional(),
+    note: z.string().optional(),
 })
 
 export type EventSchema = z.infer<typeof eventSchema>
@@ -43,33 +67,85 @@ export const organizationSchema = z.object({
     state: z.string().optional(),
     zip: z.string().optional(),
     country: z.string().optional(),
-    phone: z.string().optional(),
-    email: z.string().optional(),
-    type: z.string().optional(),
-    resources: z.string().optional(),
+    phones: z.array(z.object({
+        id: z.string().optional(),
+        phoneNumber: z.string(),
+        phoneTypeId: z.string(),
+    })).optional(),
+    electronicAddresses: z.array(z.object({
+        id: z.string().optional(),
+        electronicAddress: z.string(),
+        electronicAddressTypeId: z.string(),
+    })).optional(),
     note: z.string().optional(),
+    organizationTypes: z.array(z.string()).optional(),
+    type: z.string().optional(),
     referral: z.string().optional(),
     agentId: z.string().min(1, { message: "Agent is required!" }),
-    contactId: z.string().min(1, { message: "Contact is required!" }),
+    /*
+    resources: z.string().optional(),
+    contactId: z.string().min(1, { message: "Contact is required!" }), */
 })
 
 export type OrganizationSchema = z.infer<typeof organizationSchema>
 
 export const productSchema = z.object({
     id: z.string().optional(),
-    name: z
-        .string()
-        .min(1, { message: "Name is required." }),
-    description: z
-        .string()
-        .min(1, { message: "Description is required." }),
-    category: z.enum(["PRODUCTION", "SERVICE", "MERCHANDISE", "ENTERTAINER_MUSIC", "ENTERTAINER_NON_MUSIC"],
-        { message: "Category is required." }),
-    contactId: z.string().min(1, { message: "Contact is required!" }),
-    agentId: z.string().min(1, { message: "Agent is required!" }),
+    name: z.string().min(1, { message: "Name is required." }),
+    electronicAddresses: z.array(z.object({
+        id: z.string().optional(),
+        electronicAddress: z.string(),
+        electronicAddressTypeId: z.string(),
+    })).optional(),
+    bookingContactId: z.string().optional(),
+    phones: z.array(z.object({
+        id: z.string().optional(),
+        phoneNumber: z.string(),
+        phoneTypeId: z.string(),
+    })).optional(),
+    grossPrice: z.string().optional(),
+    feePercent: z.string().optional(),
+    available: z.boolean(),
+    note: z.string().optional(),
+    productTypeId: z.string().min(1, { message: "Product Type is required!" }),
+    categories: z.array(z.string()).optional(),
+    description: z.string().optional(),
 })
 
 export type ProductSchema = z.infer<typeof productSchema>
+
+export const entertainerSchema = z.object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    electronicAddresses: z.array(z.object({
+        id: z.string().optional(),
+        electronicAddress: z.string(),
+        electronicAddressTypeId: z.string(),
+    })).optional(),
+    bookingContactId: z.string().optional(),
+    phones: z.array(z.object({
+        id: z.string().optional(),
+        phoneNumber: z.string(),
+        phoneTypeId: z.string(),
+    })).optional(),
+    grossPrice: z.string().optional(),
+    feePercent: z.string().optional(),
+    available: z.string().optional(),
+    note: z.string().optional(),
+    productTypeId: z.string().optional(),
+    categories: z.array(z.string()).optional(),
+    description: z.string().optional(),
+    bio: z.string().optional(),
+    specialRequirements: z.string().optional(),
+    businessCards: z.string().optional(),
+    active: z.string().optional(),
+    leaderId: z.string().optional(),
+    size: z.string().optional(),
+    exclusive: z.string().optional(),
+    agentId: z.string().optional(),
+})
+
+export type EntertainerSchema = z.infer<typeof entertainerSchema>
 
 export const reportSchema = z.object({
     id: z.string().optional(),

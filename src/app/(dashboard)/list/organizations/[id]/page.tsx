@@ -1,11 +1,6 @@
-import Link from "next/link"
-import Image from "next/image"
+import FormContainer from "@/components/FormContainer";
 import prisma from "@/lib/prisma"
-import { Organization, Event, Product } from "@/generated/prisma"
-import { notFound } from "next/navigation"
-import FormContainer from "@/components/FormContainer"
-import { formatDate, getAgentName, getContactEmail, getContactName, getContactNumber } from "@/lib/utils"
-import Table from "@/components/Table"
+import { getElectronicAddressType, getPhoneType } from "@/lib/utils"
 
 const SingleOrganizationPage = async ({
     params,
@@ -16,192 +11,183 @@ const SingleOrganizationPage = async ({
     const { id } = await params;
 
     const organization = await prisma.organization.findUnique({
-        where: { id: id },
-        include: {
-            users: true,
-            events: {
-                include: {
-                    products: true
-                }
-            },
-            tasks: true,
-        }
+        where: { entityId: id },
+    });
+    if (!organization) {
+        return <div>Organization not found.</div>;
+    }
+    const entity = await prisma.entity.findUnique({
+        where: { id: organization.entityId },
+    });
+
+    const address = await prisma.address.findFirst({
+        where: { entityId: id || ""},
+    });
+    const country = await prisma.country.findUnique({
+        where: { id: address?.countryId || "" },
+    });
+    const state = await prisma.state.findUnique({
+        where: { id: address?.stateId || "" },
+    });
+
+    const phone = await prisma.phone.findMany({
+        where: { entityId: id },
+    });
+    const electronicAddress = await prisma.electronicAddress.findMany({
+        where: { entityId: id },
+    });
+    const resources = await prisma.organizationResource.findMany({
+        where: { organizationEntityId: id },
+    });
+    
+    const agent = await prisma.person.findUnique({
+        where: { entityId: organization.agentPersonEntityId || "" },
     })
 
-    if (!organization) {
-        return notFound();
+    const organizationTypesData = await prisma.organizationTypes.findMany({
+        where: { organizationEntityId: id },
+        include: {
+            organizationType: true
+        }
+    });
+
+    const data = {
+        entityId: organization.entityId,
+        entityTypeId: entity?.entityTypeId,
+        organization: organization,
+        address: address,
+        country: country,
+        state: state,
+        phones: phone,
+        electronicAddress: electronicAddress,
+        resources: resources,
+        agent: agent,
+        organizationTypes: organizationTypesData
     }
 
+
     return (
-        <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
-            {/* LEFT */}
-            <div className="w-full xl:w-2/3">
-                {/* TOP */}
-                <div className="flex flex-col lg:flex-row gap-4">
-                    {/* USER INFO CARD */}
-                    <div className="bg-lightorange py-6 px-4 rounded-md flex-1 flex gap-4">
-                        <div className="flex flex-1 flex-col justify-between gap-4">
-                            <div className='flex justify-between items-center'>
-                                <span className="font-bold">Organization Details</span>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <h1 className="text-xl font-semibold">{organization.name}</h1>
-                                <FormContainer table="organizations"
-                                    type="update"
-                                    data={organization}
-                                />
-                            </div>
-                            <p className="text-sm">
-                                {organization.note || "No description available."}
-                            </p>
-                            <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/company.png" alt="" width={14} height={14} />
-                                    <span>Contact: {getContactName(organization.contactId)}</span>
+        <div className="flex-1 p-4 flex flex-col gap-4">
+            {/* TOP SECTION - ORGANIZATION DETAILS */}
+            <div className="w-full xl:w-2/3 bg-white p-6 rounded-md shadow">
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-2xl font-bold">{organization.name}</h1>
+                    <FormContainer table="organizations" type="update" data={data} />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Left Column */}
+                    <div className="space-y-8">
+                        {/* Address */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Address</h3>
+                            {address ? (
+                                <p className="text-sm">
+                                    {address.address1}, {address.address2}
+                                    <br />
+                                    {address.city}, {state?.code} {address.zip} {address.zipExtension}
+                                    <br />
+                                    {country?.description}
+                                </p>
+                            ) : (
+                                <p className="text-sm text-gray-400">No address available</p>
+                            )}
+                        </div>
+
+                        {/* Phone Numbers */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Phone Numbers</h3>
+                            {phone.length > 0 ? (
+                                <div className="space-y-1">
+                                    {phone.map((p) => (
+                                        <p key={p.id} className="text-sm">
+                                            {p.phoneNumber} [{getPhoneType(p.phoneTypeId)}]
+                                        </p>
+                                    ))}
                                 </div>
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/agent.png" alt="" width={14} height={14} />
-                                    <span>Agent: {getAgentName(organization.agentId)}</span>
+                            ) : (
+                                <p className="text-sm text-gray-400">No phone numbers available</p>
+                            )}
+                        </div>
+
+                        {/* Electronic Addresses */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Electronic Addresses</h3>
+                            {electronicAddress.length > 0 ? (
+                                <div className="space-y-1">
+                                    {electronicAddress.map((ea) => (
+                                        <p key={ea.id} className="text-sm">
+                                            {ea.electronicAddress} [{getElectronicAddressType(ea.electronicAddressTypeId)}]
+                                        </p>
+                                    ))}
                                 </div>
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/mail.png" alt="" width={14} height={14} />
-                                    <span>{getContactEmail(organization.contactId)}</span>
+                            ) : (
+                                <p className="text-sm text-gray-400">No electronic addresses available</p>
+                            )}
+                        </div>
+
+                        {/* Resources */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Resources</h3>
+                            {resources.length > 0 ? (
+                                <div className="flex flex-wrap gap-2">
+                                    {resources.map((r) => (
+                                        <span key={r.id} className="px-3 py-1 bg-blue-200 text-sm rounded-full">
+                                            {r.name}
+                                        </span>
+                                    ))}
                                 </div>
-                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/phone.png" alt="" width={14} height={14} />
-                                    <span>{getContactNumber(organization.contactId)}</span>
-                                </div>
-                            </div>
+                            ) : (
+                                <p className="text-sm text-gray-400">No resources available</p>
+                            )}
                         </div>
                     </div>
 
-                </div>
-                {/* BOTTOM */}
-                <div className="mt-4 bg-white rounded-md p-4">
+                    {/* Right Column */}
+                    <div className="space-y-8">
+                        {/* Note */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Note</h3>
+                            <p className="text-sm whitespace-pre-wrap">{organization.note || "No notes available"}</p>
+                        </div>
 
-                    {/* CONTACTS TABLE */}
-                    <div className="mb-8">
-                        <h1 className="text-xl font-semibold mb-4">Contacts</h1>
-                        {organization.users.length > 0 ? (
-                            <Table
-                                columns={[
-                                    { header: "Name", accessor: "name" },
-                                    { header: "Email", accessor: "email" },
-                                    { header: "Phone", accessor: "phone" },
-                                ]}
-                                renderRow={(contact: typeof organization.users[number]) => (
-                                    <tr key={contact.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightpurple">
-                                        <td className="py-4">
-                                            <Link href={`/list/events/${contact.id}`} className="font-medium hover:underline">
-                                                {contact.firstName} {contact.lastName}
-                                            </Link>
-                                        </td>
-                                        <td className="py-4">{contact.email}</td>
-                                        <td className="py-4">{contact.phone}</td>
-                                    </tr>
-                                )}
-                                data={organization.users}
-                            />
-                        ) : (
-                            <p className="text-gray-500 text-sm">No contacts found for this organization.</p>
-                        )}
-                    </div>
+                        {/* Type */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Organization Type</h3>
+                            {organizationTypesData.length > 0 ? (
+                                <div className="flex flex-wrap gap-2">
+                                    {organizationTypesData.map((ot) => (
+                                        <span key={ot.id} className="px-3 py-1 bg-blue-100 text-sm rounded-full">
+                                            {ot.organizationType.description}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-400">No type assigned</p>
+                            )}
+                        </div>
 
-                    {/* TASKS TABLE */}
-                    <div className="mb-8">
-                        <h1 className="text-xl font-semibold mb-4">Tasks</h1>
-                        {organization.tasks.length > 0 ? (
-                            <Table
-                                columns={[
-                                    { header: "Task", accessor: "task" },
-                                    { header: "Agent", accessor: "agent" },
-                                    { header: "Complete?", accessor: "complete" },
-                                ]}
-                                renderRow={(task: typeof organization.tasks[number]) => (
-                                    <tr key={task.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightpurple">
-                                        <td className="py-4">{task.note}</td>
-                                        <td className="py-4">{getAgentName(task.ownerId)}</td>
-                                        <td className="py-4">{task.complete ? "Yes" : "No"}</td>
-                                    </tr>
-                                )}
-                                data={organization.tasks}
-                            />
-                        ) : (
-                            <p className="text-gray-500 text-sm">No tasks found for this organization.</p>
-                        )}
-                    </div>
+                        {/* Agent */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Agent</h3>
+                            {agent ? (
+                                <p className="text-sm">{agent.firstName} {agent.lastName}</p>
+                            ) : (
+                                <p className="text-sm text-red-400">No agent assigned</p>
+                            )}
+                        </div>
 
-                    {/* LOG TABLE */}
-                    <div className="mb-8">
-                        <h1 className="text-xl font-semibold mb-4">Log</h1>
-                        <p className="text-gray-500 text-sm">No results returned.</p>
-                    </div>
+                        {/* Referred By */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">Referred By</h3>
+                            <p className="text-sm">{organization.referredBy || ""}</p>
+                        </div>
 
-                    {/* EVENTS TABLE */}
-                    <div className="mb-8">
-                        <h1 className="text-xl font-semibold mb-4">Events</h1>
-                        {organization.events.length > 0 ? (
-                            <Table
-                                columns={[
-                                    { header: "Event Name", accessor: "name" },
-                                    { header: "Start Date", accessor: "startDate" },
-                                    { header: "End Date", accessor: "endDate" },
-                                    { header: "Budget", accessor: "budget" },
-                                ]}
-                                renderRow={(event: typeof organization.events[number]) => (
-                                    <tr key={event.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightpurple">
-                                        <td className="py-4">
-                                            <Link href={`/list/events/${event.id}`} className="font-medium hover:underline">
-                                                {event.name}
-                                            </Link>
-                                        </td>
-                                        <td>{formatDate(event.startDate)}</td>
-                                        <td>{formatDate(event.endDate)}</td>
-                                        <td>{event.budget ? `$${event.budget.toFixed(2)}` : "N/A"}</td>
-                                    </tr>
-                                )}
-                                data={organization.events}
-                            />
-                        ) : (
-                            <p className="text-gray-500 text-sm">No events found for this organization.</p>
-                        )}
-                    </div>
-
-                    {/* EVENT PRODUCTS TABLE */}
-                    <div className="mb-8">
-                        <h1 className="text-xl font-semibold mb-4">Products Pitched</h1>
-                        <p className="text-gray-500 text-sm">No results returned.</p>
-                    </div>
-
-                    {/* DOCUMENTS TABLE */}
-                    <div className="mb-8">
-                        <h1 className="text-xl font-semibold mb-4">Documents</h1>
-                        <p className="text-gray-500 text-sm">No results returned.</p>
-                    </div>
-
-                </div>
-            </div>
-         
-            {/* RIGHT */}
-            <div className="w-full xl:w-1/3 flex flex-col gap-4">
-                <div className="bg-white p-4 rounded-md">
-                    <h1 className="text-xl font-semibold">Table Links</h1>
-                    <div className="mt-4 flex gap-4 flex-wrap text-xs font-medium">
-                        <Link className="p-3 rounded-md bg-orange" href="/">
-                            Organization&apos;s Contacts
-                        </Link>
-                        <Link className="p-3 rounded-md bg-lightorange" href="/">
-                            Contact&apos;s Tasks
-                        </Link>
-                        <Link className="p-3 rounded-md bg-orange" href="/">
-                            Contact&apos;s Events
-                        </Link>
-                        <Link className="p-3 rounded-md bg-lightorange" href="/">
-                            Contact&apos;s Pitched Products
-                        </Link>
-                        <Link className="p-3 rounded-md bg-orange" href="/">
-                            Contact&apos;s Documents
-                        </Link>
+                        {/* List Membership */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <h3 className="text-sm font-semibold text-gray-600 mb-1">List Membership</h3>
+                            <p className="text-sm">{"None"}</p>
+                        </div>
                     </div>
                 </div>
             </div>
