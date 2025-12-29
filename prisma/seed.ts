@@ -108,6 +108,7 @@ async function seedFromCSV(tableName: string, filePath: string) {
         if (newRow.venueOrganizationResourceId) newRow.venueOrganizationResourceId = toUUID(newRow.venueOrganizationResourceId);
         if (newRow.pitchedByEntityId) newRow.pitchedByEntityId = toUUID(newRow.pitchedByEntityId);
         if (newRow.leaderPersonEntityId) newRow.leaderPersonEntityId = toUUID(newRow.leaderPersonEntityId);
+        if (newRow.dynamicListId) newRow.dynamicListId = toUUID(newRow.dynamicListId);
 
         // 2. Date Conversions (using our previous date-fns logic)
         Object.keys(newRow).forEach(key => {

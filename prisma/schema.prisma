@@ -1,12 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-i
-/**
- * THIS SCHEMA MATCHES THE ORIGINAL SITE
- */
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -82,18 +76,18 @@ model DocumentType {
 model DynamicList {
   id                 String              @id @default(uuid()) @db.VarChar(36)
   name               String              @db.VarChar(255)
-  description        String              @db.VarChar(1000)
+  description        String?             @db.VarChar(1000)
   dynamicListMembers DynamicListMember[] @relation("dynamic_list")
 }
 
 model DynamicListMember {
   id                   String      @id @default(uuid()) @db.VarChar(36)
-  organizationEntityId String      @map("organization_entity_id") @db.VarChar(36)
-  organizationEntity   Entity      @relation("organization_entity", fields: [organizationEntityId], references: [id])
-  personEntityId       String      @map("person_entity_id") @db.VarChar(36)
-  personEntity         Entity      @relation("person_entity", fields: [personEntityId], references: [id])
-  dynamicListId        String      @map("dynamic_list_id") @db.VarChar(36)
-  dynamicList          DynamicList @relation("dynamic_list", fields: [dynamicListId], references: [id])
+  organizationEntityId String?      @map("organization_entity_id") @db.VarChar(36)
+  organizationEntity   Entity?      @relation("organization_entity", fields: [organizationEntityId], references: [id])
+  personEntityId       String?      @map("person_entity_id") @db.VarChar(36)
+  personEntity         Entity?      @relation("person_entity", fields: [personEntityId], references: [id])
+  dynamicListId        String?      @map("dynamic_list_id") @db.VarChar(36)
+  dynamicList          DynamicList? @relation("dynamic_list", fields: [dynamicListId], references: [id])
 }
 
 model ElectronicAddress {

@@ -51,13 +51,18 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
                     select: { entityId: true, firstName: true, lastName: true },
                     orderBy: { lastName: 'asc' }
                 });
+                const dynamicLists = await prisma.dynamicList.findMany({
+                    select: { id: true, name: true, description: true },
+                    orderBy: { name: 'asc' }
+                });
                 relatedData = {
                     states: orgStates,
                     countries: orgCountries,
                     phoneTypes: orgPhoneTypes,
                     organizationTypes,
                     agents: orgAgents,
-                    electronicAddressTypes: orgElectronicAddressTypes
+                    electronicAddressTypes: orgElectronicAddressTypes,
+                    dynamicLists
                 };
 
                 break;

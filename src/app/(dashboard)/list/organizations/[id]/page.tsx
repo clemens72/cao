@@ -51,6 +51,13 @@ const SingleOrganizationPage = async ({
         }
     });
 
+    const dynamicListMembersData = await prisma.dynamicListMember.findMany({
+        where: { organizationEntityId: id },
+        include: {
+            dynamicList: true
+        }
+    });
+
     const data = {
         entityId: organization.entityId,
         entityTypeId: entity?.entityTypeId,
@@ -62,7 +69,8 @@ const SingleOrganizationPage = async ({
         electronicAddress: electronicAddress,
         resources: resources,
         agent: agent,
-        organizationTypes: organizationTypesData
+        organizationTypes: organizationTypesData,
+        dynamicListMembers: dynamicListMembersData
     }
 
 
@@ -186,7 +194,17 @@ const SingleOrganizationPage = async ({
                         {/* List Membership */}
                         <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
                             <h3 className="text-sm font-semibold text-gray-600 mb-1">List Membership</h3>
-                            <p className="text-sm">{"None"}</p>
+                            {dynamicListMembersData.length > 0 ? (
+                                <div className="flex flex-wrap gap-2">
+                                    {dynamicListMembersData.map((dlm) => (
+                                        <span key={dlm.id} className="px-3 py-1 bg-green-100 text-sm rounded-full">
+                                            {dlm.dynamicList?.name || "Unknown"}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-400">No list memberships</p>
+                            )}
                         </div>
                     </div>
                 </div>

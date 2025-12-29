@@ -55,7 +55,7 @@ const OrganizationForm = ({
 
     }, [state, router, setOpen, type])
 
-    const { states, countries, phoneTypes, organizationTypes, agents, electronicAddressTypes } = relatedData;
+    const { states, countries, phoneTypes, organizationTypes, agents, electronicAddressTypes, dynamicLists } = relatedData;
 
     return (
         <form className="flex flex-col h-full max-h-[90vh] overflow-hidden" onSubmit={onSubmit}>
@@ -220,17 +220,23 @@ const OrganizationForm = ({
                             <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Membership</h2>
                         </div>
 
-                        {/* <div>
+                        <div>
                             <label className="block text-xs text-gray-600 font-medium mb-1.5">List Membership</label>
                             <select
                                 className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
-                                name="membership"
+                                {...register("dynamicLists")}
                                 multiple
                                 size={6}
+                                defaultValue={data?.dynamicListMembers?.map((dlm: any) => dlm.dynamicListId) || []}
                             >
+                                {dynamicLists?.map((list: { id: string; name: string; description: string }) => (
+                                    <option key={list.id} value={list.id}>
+                                        {list.name}
+                                    </option>
+                                ))}
                             </select>
                             <p className="text-xs text-gray-500 mt-1.5">Hold Ctrl/Cmd to select multiple</p>
-                        </div> */}
+                        </div>
                     </div>
                 </div>
             </div>

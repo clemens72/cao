@@ -397,6 +397,19 @@ export const createOrganization = async (
       }
     }
 
+    // Handle dynamic list memberships if they exist
+    if (data.dynamicLists && data.dynamicLists.length > 0) {
+      for (const listId of data.dynamicLists) {
+        await prisma.dynamicListMember.create({
+          data: {
+            organizationEntityId: entity.id,
+            personEntityId: entity.id, // For organizations, this might be null or the same
+            dynamicListId: listId,
+          }
+        });
+      }
+    }
+
     return { success: true, error: false }
   } catch (err) {
     console.log(err);
@@ -585,6 +598,44 @@ export const updateOrganization = async (
           data: {
             organizationEntityId: data.id!,
             organizationTypeId: typeId,
+          }
+        });
+      }
+    }
+
+    // Handle dynamic list memberships - update existing, create new, and delete removed
+    if (data.dynamicLists) {
+      // Get existing dynamic list memberships from the database
+      const existingDynamicListMembers = await prisma.dynamicListMember.findMany({
+        where: { organizationEntityId: data.id },
+        select: { id: true, dynamicListId: true }
+      });
+
+      const submittedListIds = data.dynamicLists;
+
+      // Delete memberships that were removed
+      const membershipsToDelete = existingDynamicListMembers
+        .filter(existing => !submittedListIds.includes(existing.dynamicListId || ""))
+        .map(m => m.id);
+
+      if (membershipsToDelete.length > 0) {
+        await prisma.dynamicListMember.deleteMany({
+          where: {
+            id: { in: membershipsToDelete }
+          }
+        });
+      }
+
+      // Create new memberships (ones that don't already exist)
+      const existingListIds = existingDynamicListMembers.map(m => m.dynamicListId);
+      const newListIds = submittedListIds.filter(listId => !existingListIds.includes(listId));
+
+      for (const listId of newListIds) {
+        await prisma.dynamicListMember.create({
+          data: {
+            organizationEntityId: data.id!,
+            personEntityId: data.id!, // For organizations, this might be null or the same
+            dynamicListId: listId,
           }
         });
       }

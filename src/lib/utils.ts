@@ -75,3 +75,27 @@ export async function getProductCategoryName(id: string | null): Promise<string>
   });
   return category?.description || "Unknown";
 }
+
+export async function getOrganizationType(id: string | null): Promise<string[]> {
+  if (!id) return [];
+  
+  const orgTypes = await prisma.organizationTypes.findMany({
+    where: { organizationEntityId: id },
+    select: { organizationTypeId: true },
+  });
+  
+  if (!orgTypes || orgTypes.length === 0) return [];
+  
+  // Get descriptions for each organizationTypeId
+  const descriptions = await Promise.all(
+    orgTypes.map(async (org) => {
+      const orgType = await prisma.organizationType.findUnique({
+        where: { id: org.organizationTypeId },
+        select: { description: true },
+      });
+      return orgType?.description || "Unknown";
+    })
+  );
+  
+  return descriptions;
+}

@@ -70,7 +70,7 @@ CREATE TABLE "DocumentType" (
 CREATE TABLE "DynamicList" (
     "id" VARCHAR(36) NOT NULL,
     "name" VARCHAR(255) NOT NULL,
-    "description" VARCHAR(1000) NOT NULL,
+    "description" VARCHAR(1000),
 
     CONSTRAINT "DynamicList_pkey" PRIMARY KEY ("id")
 );
@@ -78,9 +78,9 @@ CREATE TABLE "DynamicList" (
 -- CreateTable
 CREATE TABLE "DynamicListMember" (
     "id" VARCHAR(36) NOT NULL,
-    "organization_entity_id" VARCHAR(36) NOT NULL,
-    "person_entity_id" VARCHAR(36) NOT NULL,
-    "dynamic_list_id" VARCHAR(36) NOT NULL,
+    "organization_entity_id" VARCHAR(36),
+    "person_entity_id" VARCHAR(36),
+    "dynamic_list_id" VARCHAR(36),
 
     CONSTRAINT "DynamicListMember_pkey" PRIMARY KEY ("id")
 );
@@ -496,13 +496,13 @@ ALTER TABLE "DocumentStore" ADD CONSTRAINT "DocumentStore_created_by_person_enti
 ALTER TABLE "DocumentStore" ADD CONSTRAINT "DocumentStore_modified_by_person_entity_id_fkey" FOREIGN KEY ("modified_by_person_entity_id") REFERENCES "Entity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "DynamicListMember" ADD CONSTRAINT "DynamicListMember_organization_entity_id_fkey" FOREIGN KEY ("organization_entity_id") REFERENCES "Entity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "DynamicListMember" ADD CONSTRAINT "DynamicListMember_organization_entity_id_fkey" FOREIGN KEY ("organization_entity_id") REFERENCES "Entity"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "DynamicListMember" ADD CONSTRAINT "DynamicListMember_person_entity_id_fkey" FOREIGN KEY ("person_entity_id") REFERENCES "Entity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "DynamicListMember" ADD CONSTRAINT "DynamicListMember_person_entity_id_fkey" FOREIGN KEY ("person_entity_id") REFERENCES "Entity"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "DynamicListMember" ADD CONSTRAINT "DynamicListMember_dynamic_list_id_fkey" FOREIGN KEY ("dynamic_list_id") REFERENCES "DynamicList"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "DynamicListMember" ADD CONSTRAINT "DynamicListMember_dynamic_list_id_fkey" FOREIGN KEY ("dynamic_list_id") REFERENCES "DynamicList"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ElectronicAddress" ADD CONSTRAINT "ElectronicAddress_electronic_address_type_id_fkey" FOREIGN KEY ("electronic_address_type_id") REFERENCES "ElectronicAddressType"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

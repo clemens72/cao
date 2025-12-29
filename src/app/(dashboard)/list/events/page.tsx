@@ -106,6 +106,9 @@ const EventsListPage = async ({
 
     prisma.event.findMany({
       where: query,
+      orderBy: [
+        { startDate: { sort: 'desc', nulls: 'last' } }
+      ],
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
     }),

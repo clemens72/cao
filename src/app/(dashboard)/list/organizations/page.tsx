@@ -9,9 +9,12 @@ import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Prisma } from "@/generated/prisma/client"
 import { auth } from "@clerk/nextjs/server"
 import FormContainer from "@/components/FormContainer"
-import { getPersonName } from "@/lib/utils"
+import { getPersonName, getOrganizationType } from "@/lib/utils"
 
-type OrganizationList = Organization & { events: Event[] }
+type OrganizationList = Organization & {
+  organizationTypes: string;
+  agentName: string;
+}
 type SearchParams = { [key: string]: string | string[] | undefined }
 
 function getFirst(value: string | string[] | undefined) {
@@ -59,8 +62,8 @@ const OrganizationsListPage = async ({
           {item.name}
         </Link>
       </td>
-      <td className="hidden md:table-cell">{item.referredBy}</td>
-      <td className="hidden md:table-cell">{getPersonName(item.agentPersonEntityId)}</td>
+      <td className="hidden md:table-cell">{item.organizationTypes}</td>
+      <td className="hidden md:table-cell">{item.agentName}</td>
       <td>
         <div className="flex items-center gap-2">
           <Link href={`/list/organizations/${item.entityId}`}>
@@ -110,6 +113,19 @@ const OrganizationsListPage = async ({
     prisma.organization.count()
   ])
 
+  // Fetch organization types and agent names for each organization
+  const dataWithTypes = await Promise.all(
+    data.map(async (org) => {
+      const orgTypes = await getOrganizationType(org.entityId);
+      const agentName = await getPersonName(org.agentPersonEntityId);
+      return {
+        ...org,
+        organizationTypes: orgTypes.join(", "),
+        agentName: agentName,
+      };
+    })
+  );
+
   return (
     <div className='bg-white p-4 rounded-md flex-1 m-4 mt-0'>
       {/* TOP */}
@@ -131,7 +147,7 @@ const OrganizationsListPage = async ({
         </div>
       </div>
       {/* LIST */}
-      <Table columns={columns} renderRow={renderRow} data={data} />
+      <Table columns={columns} renderRow={renderRow} data={dataWithTypes} />
       {/* PAGINATION */}
       <Pagination page={p} count={count} />
     </div>
