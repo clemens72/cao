@@ -99,3 +99,39 @@ export async function getOrganizationType(id: string | null): Promise<string[]> 
   
   return descriptions;
 }
+
+export async function getProductType(id: string | null): Promise<string> {
+  if (!id) return "Unknown";
+  const productType = await prisma.productType.findUnique({
+    where: { id },
+    select: { description: true },
+  });
+  return productType?.description || "Unknown";
+}
+
+export async function getProductName(id: string | null): Promise<string> {
+  if (!id) return "Unknown";
+  const product = await prisma.product.findUnique({
+    where: { entityId: id },
+    select: { name: true },
+  });
+  return product?.name || "Unknown";
+}
+
+export async function getProductStatus(id: string | null): Promise<string> {
+  if (!id) return "Unknown";
+  const status = await prisma.productStatus.findUnique({
+    where: { id },
+    select: { description: true },
+  });
+  return status?.description || "Unknown";
+}
+
+export async function getOrganiationName(id: string | null): Promise<string> {
+  if (!id) return "Unknown";
+  const organization = await prisma.organization.findUnique({
+    where: { entityId: id },
+    select: { name: true },
+  });
+  return organization?.name || "Unknown";
+}

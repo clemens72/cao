@@ -34,11 +34,6 @@ const ContactsListPage = async ({
       accessor: "name",
     },
     {
-      header: "Organizations",
-      accessor: "organizations",
-      className: "hidden md:table-cell",
-    },
-    {
       header: "Agent",
       accessor: "agent",
       className: "hidden md:table-cell",
@@ -59,7 +54,6 @@ const ContactsListPage = async ({
           {item.firstName + " " + item.lastName}
         </Link>
       </td>
-      <td className="hidden md:table-cell">{}</td>
       <td className="hidden md:table-cell">{getPersonName(item.agentPersonEntityId)}</td>
       <td>
         <div className="flex items-center gap-2">

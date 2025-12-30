@@ -1,6 +1,9 @@
 import prisma from "@/lib/prisma"
 import FormContainer from "@/components/FormContainer"
-import { formatDate, getPersonName } from "@/lib/utils"
+import { formatDate, getOrganiationName, getPersonName, getProductName, getProductStatus } from "@/lib/utils"
+import Table from "@/components/Table"
+import { EventProduct } from "@/generated/prisma"
+import Link from "next/link"
 
 const SingleEventPage = async ({
     params,
@@ -41,6 +44,9 @@ const SingleEventPage = async ({
     const contacts = await prisma.eventPerson.findMany({
         where: { eventEntityId: id },
     })
+    const eventProducts = await prisma.eventProduct.findMany({
+        where: { eventEntityId: id },
+    })
 
     const data = {
         entityId: id,
@@ -54,10 +60,30 @@ const SingleEventPage = async ({
         contacts,
     }
 
+    const renderProducts = (item: EventProduct) => (
+        <tr
+            key={item.id}
+            className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
+        >
+            <td className="font-semibold pl-2">
+                <Link href={`/list/products/${item.productEntityId}`}>
+                    {getProductName(item.productEntityId)}
+                </Link>
+            </td>
+            <td className="hidden md:table-cell">{getProductStatus(item.productStatusId) || "N/A"}</td>
+            <td className="hidden md:table-cell">{formatDate(item.startDate)}</td>
+            <td className="hidden md:table-cell">{formatDate(item.endDate)}</td>
+            <td className="hidden md:table-cell">{getOrganiationName(item.venueOrganizationEntityId) || "N/A"}</td>
+            <td className="hidden md:table-cell">${item.grossPrice || "$0.00"}.00</td>
+            <td className="hidden md:table-cell">{item.feePercent ? `${item.feePercent}%` : "0%"}</td>
+            <td className="hidden md:table-cell">${item.deposit || "$0.00"}0</td>
+        </tr>
+    )
+
     return (
         <div className="flex-1 p-4 flex flex-col gap-4">
             <div className="flex flex-col xl:flex-row gap-4">
-                {/* TOP SECTION - CONTACT DETAILS */}
+                {/* TOP SECTION - EVENT DETAILS */}
                 <div className="w-full xl:w-2/3 bg-white p-6 rounded-md shadow">
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-2xl font-bold">{event.name}</h1>
@@ -289,6 +315,12 @@ const SingleEventPage = async ({
                             <h1 className="text-xl font-bold text-gray-800 mb-6">Tasks</h1>
                             <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
                         </div>
+                        <Table columns={[
+                            { header: "Owner", accessor: "owner" },
+                            { header: "Date", accessor: "date" },
+                            { header: "Note", accessor: "note" },
+                            { header: "Modified Date", accessor: "modifiedDate" }
+                        ]} renderRow={() => null} data={[]} />
                     </div>
 
                     <div className="bg-white p-6 rounded-md shadow">
@@ -296,11 +328,49 @@ const SingleEventPage = async ({
                             <h1 className="text-xl font-bold text-gray-800 mb-6">Log</h1>
                             <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
                         </div>
+                        
+                        <Table columns={[
+                            { header: "Owner", accessor: "owner" },
+                            { header: "Date", accessor: "date" },
+                            { header: "Note", accessor: "note" },
+                            { header: "Date", accessor: "Date" }
+                        ]} renderRow={() => null} data={[]} />
                     </div>
                 </div>
             </div>
-        </div>
-    )
+
+                {/* BOTTOM SECTION - PRODUCTS, PAYMENTS & DOCUMENTS */}
+                <div className="bg-white p-6 rounded-md shadow">
+                    <div className="justify-between items-center mb-6 flex">
+                        <h1 className="text-xl font-bold text-gray-800 mb-6">Products</h1>
+                        <FormContainer table="eventProducts" type="create" data={{ eventEntityId: id }} />
+                    </div>
+                    <Table columns={[
+                        { header: "Product Name", accessor: "productName" },
+                        { header: "Status", accessor: "status" },
+                        { header: "Start Time", accessor: "startTime" },
+                        { header: "End Time", accessor: "endTime" },
+                        { header: "Venue", accessor: "venue" },
+                        { header: "Product Fee", accessor: "productFee" },
+                        { header: "Booking Fee", accessor: "bookingFee" },
+                        { header: "Total Balance Due", accessor: "totalBalanceDue" },
+                    ]}
+                        renderRow={renderProducts} data={eventProducts} />
+                </div>
+                <div className="bg-white p-6 rounded-md shadow">
+                    <div className="justify-between items-center mb-6 flex">
+                        <h1 className="text-xl font-bold text-gray-800 mb-6">Payments</h1>
+                        <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-md shadow">
+                    <div className="justify-between items-center mb-6 flex">
+                        <h1 className="text-xl font-bold text-gray-800 mb-6">Documents</h1>
+                        <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
+                    </div>
+                </div>
+            </div>
+            )
 }
 
-export default SingleEventPage
+            export default SingleEventPage

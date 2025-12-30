@@ -977,3 +977,39 @@ export const deleteTask = async (
     return { success: false, error: true };
   }
 };
+
+export const createEventProduct = async (
+  currentState: CurrentState,
+  data: any) => {
+  try {
+    return { success: true, error: false }
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true }
+  }
+}
+
+export const updateEventProduct = async (
+  currentState: CurrentState,
+  data: any
+) => {
+  try {
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+};
+
+export const deleteEventProduct = async (
+  currentState: CurrentState,
+  data: FormData
+) => {
+  const id = data.get("id") as string;
+  try {
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+};

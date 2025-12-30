@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Dispatch, useState, SetStateAction, useActionState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FormContainerProps } from "./FormContainer";
-import { deleteContact, deleteEvent, deleteOrganization, deleteProduct, deleteTask, deleteEntertainer } from "@/lib/actions";
+import { deleteContact, deleteEvent, deleteOrganization, deleteProduct, deleteTask, deleteEntertainer, deleteEventProduct } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
@@ -16,6 +16,7 @@ const deleteActionMap = {
   events: deleteEvent,
   /* reports: deleteReport, */
   tasks: deleteTask,
+  eventProducts: deleteEventProduct,
 }
 
 const ContactForm = dynamic(() => import("./forms/ContactForm"), {
@@ -39,6 +40,9 @@ const EventForm = dynamic(() => import("./forms/EventForm"), {
 const TaskForm = dynamic(() => import("./forms/TaskForm"), {
   loading: () => <h1>Loading...</h1>,
 });
+const EventProductForm = dynamic(() => import("./forms/EventProductForm"), {
+  loading: () => <h1>Loading...</h1>,
+});
 
 const forms: {
   [key: string]: (
@@ -55,6 +59,7 @@ const forms: {
   entertainers: (type, setOpen, data, relatedData) => <EntertainerForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
   /* reports: (type, setOpen, data) => <ReportForm type={type} setOpen={setOpen} data={data} />, */
   tasks: (type, setOpen, data, relatedData) => <TaskForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
+  eventProducts: (type, setOpen, data, relatedData) => <EventProductForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
 };
 
 const FormModel = ({

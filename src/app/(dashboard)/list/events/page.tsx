@@ -34,7 +34,7 @@ const EventsListPage = async ({
       accessor: "title",
     },
     {
-      header: "Contact",
+      header: "Client",
       accessor: "contact",
       className: "hidden md:table-cell",
     },

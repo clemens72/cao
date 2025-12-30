@@ -9,6 +9,7 @@ export type FormContainerProps = {
     | "products"
     | "entertainers"
     | "organizations"
+    | "eventProducts"
     /* | "reports"; */
     type: "create" | "update" | "delete";
     data?: any;
@@ -171,6 +172,9 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
                     agents: entertainerAgents,
                     electronicAddressTypes: entertainerElectronicAddressTypes
                 }
+                break;
+
+            case "eventProducts":
                 break;
 
             /*case "tasks":

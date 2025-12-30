@@ -166,3 +166,32 @@ export const taskSchema = z.object({
 })
 
 export type TaskSchema = z.infer<typeof taskSchema>
+
+
+export const eventProductSchema = z.object({
+    id: z.string().optional(),
+    productEntityId: z.string().min(1, { message: "Product is required!" }),
+    eventEntityId: z.string().min(1, { message: "Event is required!" }),
+    bookingContactId: z.string().optional(),
+    venueOrganizationEntityId: z.string().optional(),
+    venueOrganizationResourceId: z.string().optional(),
+    location: z.string().optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    setupBy: z.string().optional(),
+    bandSize: z.string().optional(),
+    attire: z.string().optional(),
+    contractedToProvide: z.string().optional(),
+    note: z.string().optional(),
+    productStatusId: z.string().min(1, { message: "Product Status is required!" }),
+    contractSentDate: z.string().optional(),
+    contractReturnedDate: z.string().optional(),
+    deposit: z.string().optional(),
+    paymentTerms: z.string().optional(),
+    grossPrice: z.string().optional(),
+    feePercent: z.string().optional(),
+    clientProvides: z.string().optional(),
+    specialInstructions: z.string().optional(),
+})
+
+export type EventProductSchema = z.infer<typeof eventProductSchema>
