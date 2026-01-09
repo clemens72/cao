@@ -1,9 +1,8 @@
 import prisma from "@/lib/prisma"
 import FormContainer from "@/components/FormContainer"
-import { formatDate, getOrganiationName, getPersonName, getProductName, getProductStatus } from "@/lib/utils"
+import { formatDate, getOrganizationName, getPersonName, getProductName, getProductStatus } from "@/lib/utils"
 import Table from "@/components/Table"
 import { EventProduct } from "@/generated/prisma"
-import Link from "next/link"
 
 const SingleEventPage = async ({
     params,
@@ -65,18 +64,15 @@ const SingleEventPage = async ({
             key={item.id}
             className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
         >
-            <td className="font-semibold pl-2">
-                <Link href={`/list/products/${item.productEntityId}`}>
-                    {getProductName(item.productEntityId)}
-                </Link>
-            </td>
+            <td className="font-semibold pl-2">{getProductName(item.productEntityId)}</td>
             <td className="hidden md:table-cell">{getProductStatus(item.productStatusId) || "N/A"}</td>
             <td className="hidden md:table-cell">{formatDate(item.startDate)}</td>
             <td className="hidden md:table-cell">{formatDate(item.endDate)}</td>
-            <td className="hidden md:table-cell">{getOrganiationName(item.venueOrganizationEntityId) || "N/A"}</td>
+            <td className="hidden md:table-cell">{getOrganizationName(item.venueOrganizationEntityId) || "N/A"}</td>
             <td className="hidden md:table-cell">${item.grossPrice || "$0.00"}.00</td>
             <td className="hidden md:table-cell">{item.feePercent ? `${item.feePercent}%` : "0%"}</td>
             <td className="hidden md:table-cell">${item.deposit || "$0.00"}0</td>
+            <td className="hidden md:table-cell"><FormContainer table="eventProducts" type="update" data={item} /></td>
         </tr>
     )
 

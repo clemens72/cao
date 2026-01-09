@@ -127,7 +127,7 @@ export async function getProductStatus(id: string | null): Promise<string> {
   return status?.description || "Unknown";
 }
 
-export async function getOrganiationName(id: string | null): Promise<string> {
+export async function getOrganizationName(id: string | null): Promise<string> {
   if (!id) return "Unknown";
   const organization = await prisma.organization.findUnique({
     where: { entityId: id },

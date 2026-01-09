@@ -1,7 +1,8 @@
 import FormContainer from "@/components/FormContainer";
 import Table from "@/components/Table";
+import { OrganizationPerson } from "@/generated/prisma";
 import prisma from "@/lib/prisma"
-import { getElectronicAddressType, getPhoneType } from "@/lib/utils"
+import { formatDate, getElectronicAddressType, getPersonName, getPhoneType } from "@/lib/utils"
 
 const SingleOrganizationPage = async ({
     params,
@@ -59,6 +60,10 @@ const SingleOrganizationPage = async ({
         }
     });
 
+    const organizationContacts = await prisma.organizationPerson.findMany({
+        where: { organizationEntityId: id },
+    });
+
     const data = {
         entityId: organization.entityId,
         entityTypeId: entity?.entityTypeId,
@@ -73,6 +78,19 @@ const SingleOrganizationPage = async ({
         organizationTypes: organizationTypesData,
         dynamicListMembers: dynamicListMembersData
     }
+
+    const renderContacts = (item: OrganizationPerson) => (
+        <tr
+            key={item.id}
+            className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
+        >
+            <td className="font-semibold pl-2">{getPersonName(item.personEntityId)}</td>
+            <td className="hidden md:table-cell">{item.isPrimary ? "Yes" : "No"}</td>
+            <td className="hidden md:table-cell">{formatDate(item.effectiveDate)}</td>
+            <td className="hidden md:table-cell">{formatDate(item.expirationDate)}</td>
+            <td className="hidden md:table-cell"><FormContainer table="organizationPersons" type="update" data={item} /></td>
+        </tr>
+    )
 
 
     return (
@@ -254,7 +272,7 @@ const SingleOrganizationPage = async ({
                     { header: "Primary", accessor: "isPrimary" },
                     { header: "Effective Date", accessor: "effectiveDate" },
                     { header: "Expiration Date", accessor: "expirationDate" }
-                ]} renderRow={() => null} data={[]} />
+                ]} renderRow={renderContacts} data={organizationContacts} />
             </div>
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">

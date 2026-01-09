@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Dispatch, useState, SetStateAction, useActionState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FormContainerProps } from "./FormContainer";
-import { deleteContact, deleteEvent, deleteOrganization, deleteProduct, deleteTask, deleteEntertainer, deleteEventProduct } from "@/lib/actions";
+import { deleteContact, deleteEvent, deleteOrganization, deleteProduct, deleteTask, deleteEntertainer, deleteEventProduct, deleteOrganizationPerson } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
@@ -14,9 +14,9 @@ const deleteActionMap = {
   products: deleteProduct,
   entertainers: deleteEntertainer,
   events: deleteEvent,
-  /* reports: deleteReport, */
   tasks: deleteTask,
   eventProducts: deleteEventProduct,
+  organizationPersons: deleteOrganizationPerson,
 }
 
 const ContactForm = dynamic(() => import("./forms/ContactForm"), {
@@ -34,13 +34,13 @@ const EntertainerForm = dynamic(() => import("./forms/EntertainerForm"), {
 const EventForm = dynamic(() => import("./forms/EventForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-/* const ReportForm = dynamic(() => import("./forms/ReportForm"), {
-  loading: () => <h1>Loading...</h1>,
-}); */
 const TaskForm = dynamic(() => import("./forms/TaskForm"), {
   loading: () => <h1>Loading...</h1>,
 });
 const EventProductForm = dynamic(() => import("./forms/EventProductForm"), {
+  loading: () => <h1>Loading...</h1>,
+});
+const OrganizationPersonForm = dynamic(() => import("./forms/OrganizationPersonForm"), {
   loading: () => <h1>Loading...</h1>,
 });
 
@@ -57,9 +57,9 @@ const forms: {
   events: (type, setOpen, data, relatedData) => <EventForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
   products: (type, setOpen, data, relatedData) => <ProductForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
   entertainers: (type, setOpen, data, relatedData) => <EntertainerForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
-  /* reports: (type, setOpen, data) => <ReportForm type={type} setOpen={setOpen} data={data} />, */
   tasks: (type, setOpen, data, relatedData) => <TaskForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
   eventProducts: (type, setOpen, data, relatedData) => <EventProductForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
+  organizationPersons: (type, setOpen, data, relatedData) => <OrganizationPersonForm type={type} setOpen={setOpen} data={data} relatedData={relatedData} />,
 };
 
 const FormModel = ({

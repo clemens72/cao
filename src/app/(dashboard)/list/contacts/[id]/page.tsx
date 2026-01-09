@@ -1,7 +1,8 @@
 import prisma from "@/lib/prisma"
 import FormContainer from "@/components/FormContainer"
-import { getElectronicAddressType, getPhoneType } from "@/lib/utils";
+import { formatDate, getElectronicAddressType, getOrganizationName, getPhoneType } from "@/lib/utils";
 import Table from "@/components/Table";
+import { OrganizationPerson } from "@/generated/prisma";
 
 const SingleContactPage = async ({
     params,
@@ -44,6 +45,10 @@ const SingleContactPage = async ({
         where: { entityId: id },
     });
 
+    const contactOrganizations = await prisma.organizationPerson.findMany({
+        where: { personEntityId: id },
+    });
+
     const data = {
         entityId: person.entityId,
         person: person,
@@ -55,6 +60,19 @@ const SingleContactPage = async ({
         agent: agent,
         role: role,
     }
+
+    const renderOrganizations = (item: OrganizationPerson) => (
+        <tr
+            key={item.id}
+            className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
+        >
+            <td className="font-semibold pl-2">{getOrganizationName(item.organizationEntityId)}</td>
+            <td className="hidden md:table-cell">{item.isPrimary ? "Yes" : "No"}</td>
+            <td className="hidden md:table-cell">{formatDate(item.effectiveDate)}</td>
+            <td className="hidden md:table-cell">{formatDate(item.expirationDate)}</td>
+            <td className="hidden md:table-cell"><FormContainer table="organizationPersons" type="update" data={item} /></td>
+        </tr>
+    )
 
     return (
         <div className="flex-1 p-4 flex flex-col gap-4">
@@ -208,7 +226,7 @@ const SingleContactPage = async ({
                     { header: "Primary Contact", accessor: "isPrimary" },
                     { header: "Effective Date", accessor: "effectiveDate" },
                     { header: "Expiration Date", accessor: "expirationDate" }
-                ]} renderRow={() => null} data={[]} />
+                ]} renderRow={renderOrganizations} data={contactOrganizations} />
             </div>
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">

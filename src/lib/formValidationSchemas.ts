@@ -195,3 +195,12 @@ export const eventProductSchema = z.object({
 })
 
 export type EventProductSchema = z.infer<typeof eventProductSchema>
+
+
+export const organizationPersonSchema = z.object({
+    organizationEntityId: z.string().min(1, { message: "Organization is required!" }),
+    personEntityId: z.string().min(1, { message: "Person is required!" }),
+
+})
+
+export type OrganizationPersonSchema = z.infer<typeof organizationPersonSchema>

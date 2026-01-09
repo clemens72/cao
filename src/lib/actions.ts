@@ -1013,3 +1013,39 @@ export const deleteEventProduct = async (
     return { success: false, error: true };
   }
 };
+
+export const createOrganizationPerson = async (
+  currentState: CurrentState,
+  data: any) => {
+  try {
+    return { success: true, error: false }
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true }
+  }
+}
+
+export const updateOrganizationPerson = async (
+  currentState: CurrentState,
+  data: any
+) => {
+  try {
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+}
+
+export const deleteOrganizationPerson = async (
+  currentState: CurrentState,
+  data: FormData
+) => {
+  const id = data.get("id") as string;
+  try {
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+}
