@@ -357,7 +357,7 @@ const SingleOrganizationPage = async ({
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Pitched Products</h1>
-                    <FormContainer table="clientProductPitches" type="create" data={{ eventEntityId: id }} />
+                    {/* <FormContainer table="clientProductPitches" type="create" data={{ eventEntityId: id }} /> */}
                 </div>
                 <Table columns={[
                     { header: "Product", accessor: "product" },
@@ -371,7 +371,7 @@ const SingleOrganizationPage = async ({
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Documents</h1>
-                    <FormContainer table="documents" type="create" data={{ eventEntityId: id }} />
+                    {/* <FormContainer table="documents" type="create" data={{ eventEntityId: id }} /> */}
                 </div>
             </div>
         </div>
