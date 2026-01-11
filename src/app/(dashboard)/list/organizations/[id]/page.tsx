@@ -63,18 +63,27 @@ const SingleOrganizationPage = async ({
 
     const organizationContacts = await prisma.organizationPerson.findMany({
         where: { organizationEntityId: id },
+        orderBy: {
+            isPrimary: 'desc'
+        }
     });
 
     const organizationEvents = await prisma.event.findMany({
         where: { clientOrganizationEntityId: id },
+        orderBy: {
+            startDate: 'desc'
+        }
     });
 
     const organizationPitchedProducts = await prisma.eventProduct.findMany({
-        where: { 
+        where: {
             eventEntityId: {
                 in: organizationEvents.map(e => e.entityId)
             }
         },
+        orderBy: {
+            startDate: 'desc'
+        }
     });
 
     const data = {
@@ -115,7 +124,12 @@ const SingleOrganizationPage = async ({
             key={item.entityId}
             className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
         >
-            <td className="font-semibold pl-2">{item.name}</td>
+            <td className="font-semibold pl-2">
+                <Link
+                    href={`/list/events/${item.entityId}`}>
+                    {item.name}
+                </Link>
+            </td>
             <td className="hidden md:table-cell">{formatDate(item.startDate)}</td>
             <td className="hidden md:table-cell">ERROR</td>
             <td className="hidden md:table-cell">{getEventStatus(item.eventStatusId)}</td>
@@ -129,7 +143,13 @@ const SingleOrganizationPage = async ({
             key={item.id}
             className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
         >
-            <td className="font-semibold pl-2">{getProductName(item.productEntityId)}</td>
+            <td className="font-semibold pl-2">
+                <Link
+                    href={`/list/events/${item.eventEntityId}`}>
+                    {getProductName(item.productEntityId)}
+                </Link>
+
+            </td>
             <td className="hidden md:table-cell">{formatDate(item.startDate)}</td>
             <td className="hidden md:table-cell">{getProductStatus(item.productStatusId)}</td>
             <td className="hidden md:table-cell">${item.grossPrice}.00</td>
@@ -295,7 +315,7 @@ const SingleOrganizationPage = async ({
                             <h1 className="text-xl font-bold text-gray-800 mb-6">Log</h1>
                             <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
                         </div>
-                        
+
                         <Table columns={[
                             { header: "Owner", accessor: "owner" },
                             { header: "Date", accessor: "date" },
@@ -310,7 +330,7 @@ const SingleOrganizationPage = async ({
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Contacts</h1>
-                    <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
+                    <FormContainer table="organizationPersons" type="create" data={{ eventEntityId: id }} />
                 </div>
                 <Table columns={[
                     { header: "Name", accessor: "name" },
@@ -337,7 +357,7 @@ const SingleOrganizationPage = async ({
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Pitched Products</h1>
-                    <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
+                    <FormContainer table="clientProductPitches" type="create" data={{ eventEntityId: id }} />
                 </div>
                 <Table columns={[
                     { header: "Product", accessor: "product" },
@@ -351,7 +371,7 @@ const SingleOrganizationPage = async ({
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Documents</h1>
-                    {/* <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} /> */}
+                    <FormContainer table="documents" type="create" data={{ eventEntityId: id }} />
                 </div>
             </div>
         </div>

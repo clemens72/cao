@@ -11,6 +11,9 @@ export type FormContainerProps = {
     | "organizations"
     | "eventProducts"
     | "organizationPersons"
+    | "clientProductPitches"
+    | "documents"
+    | "payments"
     /* | "reports"; */
     type: "create" | "update" | "delete";
     data?: any;

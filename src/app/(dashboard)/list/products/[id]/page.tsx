@@ -1,8 +1,9 @@
 import prisma from "@/lib/prisma"
 import FormContainer from "@/components/FormContainer"
-import { formatDate, getElectronicAddressType, getEventName, getPersonName, getPhoneType, getProductCategoryName, getProductName, getProductStatus } from "@/lib/utils";
+import { formatDate, getElectronicAddressType, getEventName, getPhoneType, getProductCategoryName, getProductStatus } from "@/lib/utils";
 import Table from "@/components/Table";
 import { EventProduct } from "@/generated/prisma";
+import Link from "next/link";
 
 const SingleProductPage = async ({
     params,
@@ -82,7 +83,11 @@ const SingleProductPage = async ({
                 key={item.id}
                 className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
             >
-                <td className="font-semibold pl-2">{getProductName(item.productEntityId)}</td>
+                <td className="font-semibold pl-2">
+                    <Link href={`/list/events/${item.eventEntityId}`}>
+                        {getEventName(item.eventEntityId)}
+                    </Link>
+                </td>
                 <td className="hidden md:table-cell">{formatDate(item.startDate)}</td>
                 <td className="hidden md:table-cell">{getProductStatus(item.productStatusId)}</td>
                 <td className="hidden md:table-cell">{formatDate(item.contractReturnedDate)}</td>
@@ -305,7 +310,6 @@ const SingleProductPage = async ({
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Events</h1>
-                    <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
                 </div>
                 <Table columns={[
                     { header: "Name", accessor: "name" },

@@ -237,10 +237,9 @@ const EventForm = ({
                                 {...register("eventForm")}
                                 defaultValue={data?.event.eventForm || ""}
                             >
-                                <option value=""></option>
+                                <option value="N_A">N/A</option>
                                 <option value="YES">Yes</option>
                                 <option value="NO">No</option>
-                                <option value="N_A">N/A</option>
                             </select>
                             {errors.eventForm?.message && (
                                 <p className="text-xs text-red-400">

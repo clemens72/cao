@@ -32,7 +32,7 @@ export const eventSchema = z.object({
     id: z.string().optional(),
     name: z
         .string()
-        .min(1, { message: "First name is required." }),
+        .min(1, { message: "Event name is required." }),
     clientId: z.string().min(1, { message: "Client is required!" }),
     venueId: z.string().optional(),
     location: z.string().optional(),
@@ -45,7 +45,7 @@ export const eventSchema = z.object({
     eventStatusId: z.string().optional(),
     contractSentDate: z.string().optional(),
     contractReturnedDate: z.string().optional(),
-    eventForm: z.enum(["YES", "NO", "N_A"], { message: "Event Form is required!" }).optional(),
+    eventForm: z.enum(["YES", "NO", "N_A"]).optional(),
     attendance: z.string().optional(),
     guestArrivalTime: z.string().optional(),
     reportTo: z.string().optional(),

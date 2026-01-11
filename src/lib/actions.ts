@@ -1,12 +1,10 @@
 "use server"
 
-import { en } from "zod/locales";
 import {
   ContactSchema,
   EventSchema,
   OrganizationSchema,
   ProductSchema,
-  ReportSchema,
   TaskSchema,
 } from "./formValidationSchemas"
 import prisma from "./prisma";
@@ -250,9 +248,24 @@ export const createEvent = async (
         entityId: entity.id,
         name: data.name,
         note: data.note,
-        startDate: data.startDate,
-        endDate: data.endDate,
+        startDate: data.startDate || null,
+        endDate: data.endDate || null,
         clientPersonEntityId: data.clientId,
+        venueOrganizationEntityId: data.venueId,
+        location: data.location,
+        eventTypeId: data.eventTypeId,
+        billingContactPersonEntityId: data.billingContactId,
+        budget: data.budget,
+        agentPersonEntityId: data.agentId,
+        eventStatusId: data.eventStatusId,
+        contractSentDate: data.contractSentDate || null,
+        contractReturnedDate: data.contractReturnedDate || null,
+        eventForm: data.eventForm,
+        attendance: data.attendance,
+        guestArrivalTime: data.guestArrivalTime,
+        reportTo: data.reportTo,
+        breakArea: data.breakArea,
+        equipmentStorage: data.equipmentStorage,
       },
     });
     return { success: true, error: false }
@@ -277,15 +290,15 @@ export const updateEvent = async (
         clientPersonEntityId: data.clientId,
         venueOrganizationEntityId: data.venueId,
         location: data.location,
-        startDate: data.startDate + ":00.00Z",
-        endDate: data.endDate + ":00.00Z",
-        eventTypeId: data.eventTypeId,
-        billingContactPersonEntityId: data.billingContactId,
-        budget: data.budget,
-        agentPersonEntityId: data.agentId,
-        eventStatusId: data.eventStatusId,
-        contractSentDate: data.contractSentDate,
-        contractReturnedDate: data.contractReturnedDate,
+        startDate: data.startDate || null,
+        endDate: data.endDate || null,
+        eventTypeId: data.eventTypeId || null,
+        billingContactPersonEntityId: data.billingContactId || null,
+        budget: data.budget || null,
+        agentPersonEntityId: data.agentId || null,
+        eventStatusId: data.eventStatusId || null,
+        contractSentDate: data.contractSentDate || null,
+        contractReturnedDate: data.contractReturnedDate || null,
         eventForm: data.eventForm,
         attendance: data.attendance,
         guestArrivalTime: data.guestArrivalTime,
@@ -866,61 +879,6 @@ export const deleteEntertainer = async (
     return { success: false, error: true };
   }
 };
-
-/* export const createReport = async (
-  currentState: CurrentState,
-  data: ReportSchema) => {
-  try {
-    await prisma.report.create({
-      data: {
-        name: data.name,
-      },
-    });
-    return { success: true, error: false }
-  } catch (err) {
-    console.log(err);
-    return { success: false, error: true }
-  }
-}
-
-export const updateReport = async (
-  currentState: CurrentState,
-  data: ReportSchema
-) => {
-  try {
-    await prisma.report.update({
-      where: {
-        id: data.id,
-      },
-      data: {
-        name: data.name,
-      },
-    });
-    return { success: true, error: false };
-  } catch (err) {
-    console.log(err);
-    return { success: false, error: true };
-  }
-};
-
-export const deleteReport = async (
-  currentState: CurrentState,
-  data: FormData
-) => {
-  const id = data.get("id") as string;
-  try {
-    await prisma.report.delete({
-      where: {
-        id: parseInt(id),
-      },
-    });
-
-    return { success: true, error: false };
-  } catch (err) {
-    console.log(err);
-    return { success: false, error: true };
-  }
-}; */
 
 export const createTask = async (
   currentState: CurrentState,

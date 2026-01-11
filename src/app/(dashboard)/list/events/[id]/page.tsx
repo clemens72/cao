@@ -47,6 +47,10 @@ const SingleEventPage = async ({
         where: { eventEntityId: id },
     })
 
+    const eventCost = (eventProducts.reduce((sum, ep) => sum + (parseInt(ep.grossPrice ?? '0') || 0), 0)).toFixed(2);
+    const COGS = (eventProducts.reduce((sum, ep) => sum + ((parseInt(ep.grossPrice ?? '0') || 0) * (100 - parseFloat(ep.feePercent ?? '0') || 0) / 100), 0)).toFixed(2);
+    const bookingFees = (eventProducts.reduce((sum, ep) => sum + ((parseInt(ep.grossPrice ?? '0') || 0) * (parseFloat(ep.feePercent ?? '0') || 0) / 100), 0)).toFixed(2);
+
     const data = {
         entityId: id,
         event,
@@ -238,7 +242,7 @@ const SingleEventPage = async ({
                             {/* Total Deposit */}
                             <div className="grid grid-cols-2 md:grid-cols-2 gap-6 border-t pt-4 border-black">
                                 <h3 className="text-lg font-semibold text-gray-600 mb-1">Total Deposit</h3>
-                                <p className="text-lg">$1000.00</p>
+                                <p className="text-lg">${(parseInt(eventCost)/2).toFixed(2)}</p>
                             </div>
 
                         </div>
@@ -255,7 +259,7 @@ const SingleEventPage = async ({
                                 <div className="grid grid-cols-3 gap-4">
                                     <div>
                                         <p className="text-xs text-gray-500 mb-1">COGS</p>
-                                        <p className="text-base font-semibold text-gray-800">$0.00</p>
+                                        <p className="text-base font-semibold text-gray-800">${COGS}</p>
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-500 mb-1">Paid</p>
@@ -273,7 +277,7 @@ const SingleEventPage = async ({
                                 <div className="grid grid-cols-3 gap-4">
                                     <div>
                                         <p className="text-xs text-gray-500 mb-1">Booking Fees</p>
-                                        <p className="text-base font-semibold text-gray-800">$0.00</p>
+                                        <p className="text-base font-semibold text-gray-800">${bookingFees}</p>
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-500 mb-1">Recorded</p>
@@ -291,7 +295,7 @@ const SingleEventPage = async ({
                                 <div className="grid grid-cols-3 gap-4">
                                     <div>
                                         <p className="text-xs font-semibold text-gray-700 mb-1">EVENT COST</p>
-                                        <p className="text-lg font-bold text-gray-900">$0.00</p>
+                                        <p className="text-lg font-bold text-gray-900">${eventCost}</p>
                                     </div>
                                     <div>
                                         <p className="text-xs font-semibold text-gray-700 mb-1">RECEIVED</p>

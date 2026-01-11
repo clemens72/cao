@@ -3,6 +3,7 @@ import FormContainer from "@/components/FormContainer"
 import { formatDate, getElectronicAddressType, getEventName, getEventPrice, getEventStatus, getOrganizationName, getPersonName, getPhoneType, getProductName, getProductStatus } from "@/lib/utils";
 import Table from "@/components/Table";
 import { Event, EventProduct, OrganizationPerson } from "@/generated/prisma";
+import Link from "next/link";
 
 const SingleContactPage = async ({
     params,
@@ -51,14 +52,20 @@ const SingleContactPage = async ({
 
     const contactEvents = await prisma.event.findMany({
         where: { clientPersonEntityId: id },
+        orderBy: {
+            startDate: 'desc'
+        }
     });
 
     const contactPitchedProducts = await prisma.eventProduct.findMany({
-        where: { 
+        where: {
             eventEntityId: {
                 in: contactEvents.map(e => e.entityId)
             }
         },
+        orderBy: {
+            startDate: 'desc'
+        }
     });
 
     const data = {
@@ -78,7 +85,12 @@ const SingleContactPage = async ({
             key={item.id}
             className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
         >
-            <td className="font-semibold pl-2">{getOrganizationName(item.organizationEntityId)}</td>
+            <td className="font-semibold pl-2">
+                <Link
+                    href={`/list/organizations/${item.organizationEntityId}`}>
+                    {getOrganizationName(item.organizationEntityId)}
+                </Link>
+            </td>
             <td className="hidden md:table-cell">{item.isPrimary ? "Yes" : "No"}</td>
             <td className="hidden md:table-cell">{formatDate(item.effectiveDate)}</td>
             <td className="hidden md:table-cell">{formatDate(item.expirationDate)}</td>
@@ -87,32 +99,42 @@ const SingleContactPage = async ({
     )
 
     const renderEvents = (item: Event) => (
-            <tr
-                key={item.entityId}
-                className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
-            >
-                <td className="font-semibold pl-2">{item.name}</td>
-                <td className="hidden md:table-cell">{formatDate(item.startDate)}</td>
-                <td className="hidden md:table-cell">ERROR</td>
-                <td className="hidden md:table-cell">{getEventStatus(item.eventStatusId)}</td>
-                <td className="hidden md:table-cell">{formatDate(item.contractReturnedDate)}</td>
-                <td className="hidden md:table-cell">${getEventPrice(item.entityId)}.00</td>
-            </tr>
-        )
-    
-        const renderPitchedProducts = (item: EventProduct) => (
-            <tr
-                key={item.id}
-                className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
-            >
-                <td className="font-semibold pl-2">{getProductName(item.productEntityId)}</td>
-                <td className="hidden md:table-cell">{formatDate(item.startDate)}</td>
-                <td className="hidden md:table-cell">{getProductStatus(item.productStatusId)}</td>
-                <td className="hidden md:table-cell">${item.grossPrice}.00</td>
-                <td className="hidden md:table-cell">for {getEventName(item.eventEntityId)}</td>
-                <td className="hidden md:table-cell">{getPersonName(item.createdByPersonEntityId)}</td>
-            </tr>
-        )
+        <tr
+            key={item.entityId}
+            className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
+        >
+            <td className="font-semibold pl-2">
+                <Link
+                    href={`/list/events/${item.entityId}`}>
+                    {item.name}
+                </Link>
+                </td>
+            <td className="hidden md:table-cell">{formatDate(item.startDate)}</td>
+            <td className="hidden md:table-cell">ERROR</td>
+            <td className="hidden md:table-cell">{getEventStatus(item.eventStatusId)}</td>
+            <td className="hidden md:table-cell">{formatDate(item.contractReturnedDate)}</td>
+            <td className="hidden md:table-cell">${getEventPrice(item.entityId)}.00</td>
+        </tr>
+    )
+
+    const renderPitchedProducts = (item: EventProduct) => (
+        <tr
+            key={item.id}
+            className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
+        >
+            <td className="font-semibold pl-2">
+                <Link
+                    href={`/list/events/${item.eventEntityId}`}>
+                    {getProductName(item.productEntityId)}
+                </Link>
+                </td>
+            <td className="hidden md:table-cell">{formatDate(item.startDate)}</td>
+            <td className="hidden md:table-cell">{getProductStatus(item.productStatusId)}</td>
+            <td className="hidden md:table-cell">${item.grossPrice}.00</td>
+            <td className="hidden md:table-cell">for {getEventName(item.eventEntityId)}</td>
+            <td className="hidden md:table-cell">{getPersonName(item.createdByPersonEntityId)}</td>
+        </tr>
+    )
 
     return (
         <div className="flex-1 p-4 flex flex-col gap-4">
@@ -259,7 +281,7 @@ const SingleContactPage = async ({
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Organization Affiliation</h1>
-                    <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
+                    <FormContainer table="organizationPersons" type="create" data={{ eventEntityId: id }} />
                 </div>
                 <Table columns={[
                     { header: "Name", accessor: "name" },
@@ -272,7 +294,6 @@ const SingleContactPage = async ({
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Events</h1>
-                    <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
                 </div>
                 <Table columns={[
                     { header: "Name", accessor: "Name" },
@@ -286,7 +307,7 @@ const SingleContactPage = async ({
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Pitched Products</h1>
-                    <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
+                    <FormContainer table="clientProductPitches" type="create" data={{ eventEntityId: id }} />
                 </div>
                 <Table columns={[
                     { header: "Product", accessor: "product" },
@@ -300,7 +321,7 @@ const SingleContactPage = async ({
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Documents</h1>
-                    <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
+                    <FormContainer table="documents" type="create" data={{ eventEntityId: id }} />
                 </div>
             </div>
         </div>
