@@ -69,9 +69,9 @@ const SingleEventPage = async ({
             <td className="hidden md:table-cell">{formatDate(item.startDate)}</td>
             <td className="hidden md:table-cell">{formatDate(item.endDate)}</td>
             <td className="hidden md:table-cell">{getOrganizationName(item.venueOrganizationEntityId) || "N/A"}</td>
-            <td className="hidden md:table-cell">${item.grossPrice || "$0.00"}.00</td>
-            <td className="hidden md:table-cell">{item.feePercent ? `${item.feePercent}%` : "0%"}</td>
-            <td className="hidden md:table-cell">${item.deposit || "$0.00"}0</td>
+            <td className="hidden md:table-cell">${((parseInt(item.grossPrice ?? '0') || 0) * (100 - parseFloat(item.feePercent ?? '0') || 0) / 100).toFixed(2)}</td>
+            <td className="hidden md:table-cell">${((parseInt(item.grossPrice ?? '0') || 0) * (parseFloat(item.feePercent ?? '0') || 0) / 100).toFixed(2)}</td>
+            <td className="hidden md:table-cell">$TBD</td>
             <td className="hidden md:table-cell"><FormContainer table="eventProducts" type="update" data={item} /></td>
         </tr>
     )

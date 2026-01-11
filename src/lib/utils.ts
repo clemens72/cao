@@ -10,7 +10,7 @@ export function formatDate(date: Date | string | null | undefined): string {
   const day = String(d.getDate()).padStart(2, "0");
   const year = String(d.getFullYear()).slice(-2); // Last two digits
 
-  return `${month}-${day}-${year}`;
+  return `${month}/${day}/${year}`;
 }
 
 export function formatDateTimeLocal(date: Date | string | null | undefined): string {
@@ -134,4 +134,32 @@ export async function getOrganizationName(id: string | null): Promise<string> {
     select: { name: true },
   });
   return organization?.name || "Unknown";
+}
+
+export async function getEventStatus(id: string | null): Promise<string> {
+  if (!id) return "Unknown";
+  const status = await prisma.eventStatus.findUnique({
+    where: { id },
+    select: { description: true },
+  });
+  return status?.description || "Unknown";
+}
+
+export async function getEventName(id: string | null): Promise<string> {
+  if (!id) return "Unknown";
+  const event = await prisma.event.findUnique({
+    where: { entityId: id },
+    select: { name: true },
+  });
+  return event?.name || "Unknown";
+}
+
+export async function getEventPrice(id: string | null): Promise<string> {
+  if (!id) return "0";
+  const eventProducts = await prisma.eventProduct.findMany({
+    where: { eventEntityId: id },
+    select: { grossPrice: true },
+  });
+  const total = eventProducts.reduce((sum, ep) => sum + (parseInt(ep.grossPrice ?? '0') || 0), 0);
+  return total.toString();
 }

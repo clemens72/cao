@@ -1,7 +1,8 @@
 import prisma from "@/lib/prisma"
 import FormContainer from "@/components/FormContainer"
-import { getElectronicAddressType, getPersonName, getPhoneType, getProductCategoryName } from "@/lib/utils";
+import { formatDate, getElectronicAddressType, getEventName, getPersonName, getPhoneType, getProductCategoryName, getProductName, getProductStatus } from "@/lib/utils";
 import Table from "@/components/Table";
+import { EventProduct } from "@/generated/prisma";
 
 const SingleProductPage = async ({
     params,
@@ -62,11 +63,33 @@ const SingleProductPage = async ({
         where: { entityId: entertainer?.leaderPersonEntityId || "" },
     })
 
+    const productEvents = await prisma.eventProduct.findMany({
+        where: { productEntityId: id },
+        orderBy: {
+            startDate: 'desc'
+        }
+    });
+
     const data = {
         ...product,
         entertainer,
         agent
     };
+
+    const renderEvents = (item: EventProduct) => {
+        return (
+            <tr
+                key={item.id}
+                className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lightorange"
+            >
+                <td className="font-semibold pl-2">{getProductName(item.productEntityId)}</td>
+                <td className="hidden md:table-cell">{formatDate(item.startDate)}</td>
+                <td className="hidden md:table-cell">{getProductStatus(item.productStatusId)}</td>
+                <td className="hidden md:table-cell">{formatDate(item.contractReturnedDate)}</td>
+                <td className="hidden md:table-cell">${item.grossPrice}.00</td>
+            </tr>
+        )
+    }
 
     return (
         <div className="flex-1 p-4 flex flex-col gap-4">
@@ -267,7 +290,7 @@ const SingleProductPage = async ({
                             <h1 className="text-xl font-bold text-gray-800 mb-6">Log</h1>
                             <FormContainer table="tasks" type="create" data={{ eventEntityId: id }} />
                         </div>
-                        
+
                         <Table columns={[
                             { header: "Owner", accessor: "owner" },
                             { header: "Date", accessor: "date" },
@@ -290,7 +313,7 @@ const SingleProductPage = async ({
                     { header: "Product Status", accessor: "productStatus" },
                     { header: "Contract Returned", accessor: "contractReturned" },
                     { header: "Gross Price", accessor: "grossPrice" }
-                ]} renderRow={() => null} data={[]} />
+                ]} renderRow={renderEvents} data={productEvents} />
             </div>
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">

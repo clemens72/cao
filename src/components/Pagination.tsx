@@ -1,6 +1,6 @@
 "use client"
 
-import { ITEM_PER_PAGE } from "@/lib/settings";
+import { ITEM_PER_PAGE, ITEM_PER_TABLE_PAGE } from "@/lib/settings";
 import { useRouter } from "next/navigation";
 
 const Pagination = ({
