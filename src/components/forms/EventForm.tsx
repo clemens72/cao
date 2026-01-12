@@ -33,11 +33,11 @@ const EventForm = ({
         resolver: zodResolver(eventSchema),
     })
 
-    const [selectedClientPersonId, setSelectedClientPersonId] = useState<string>(data?.event?.clientPersonEntityId || "");
+    const [selectedClientPersonId, setSelectedClientPersonId] = useState<string>(data?.event?.clientPersonEntityId || null);
     const [selectedClientOrganizationId, setSelectedClientOrganizationId] = useState<string | null>(data?.event?.clientOrganizationEntityId || null);
-    const [selectedVenuePersonId, setSelectedVenuePersonId] = useState<string>(data?.event?.venuePersonEntiutyId || "");
+    const [selectedVenuePersonId, setSelectedVenuePersonId] = useState<string>(data?.event?.venuePersonEntiutyId || null);
     const [selectedVenueOrganizationId, setSelectedVenueOrganizationId] = useState<string | null>(data?.event?.venueOrganizationEntityId || null);
-    const [selectedBillingContactPersonId, setSelectedBillingContactPersonId] = useState<string>(data?.event?.billingContactPersonEntityId || "");
+    const [selectedBillingContactPersonId, setSelectedBillingContactPersonId] = useState<string>(data?.event?.billingContactPersonEntityId || null);
     const [selectedBillingContactOrganizationId, setSelectedBillingContactOrganizationId] = useState<string | null>(data?.event?.billingContactOrganizationEntityId || null);
 
 
@@ -97,6 +97,14 @@ const EventForm = ({
                     hidden
                 />)}
 
+                {/* Hidden fields for ClientSelector values */}
+                <input type="hidden" {...register("clientPersonEntityId")} />
+                <input type="hidden" {...register("clientOrganizationEntityId")} />
+                <input type="hidden" {...register("venuePersonEntityId")} />
+                <input type="hidden" {...register("venueOrganizationEntityId")} />
+                <input type="hidden" {...register("billingContactPersonEntityId")} />
+                <input type="hidden" {...register("billingContactOrganizationEntityId")} />
+
                 <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 max-w-5xl">
                     {/* Left Column */}
                     <div className="space-y-5">
@@ -107,7 +115,15 @@ const EventForm = ({
                             selectorId="event-client"
                             selectedPersonId={selectedClientPersonId}
                             selectedOrganizationId={selectedClientOrganizationId}
-                            initialClientName={data.clientOrg ? `${data.clientOrg.name} - ${data.clientPerson ? data.clientPerson.firstName + " " + data.clientPerson.lastName : ""}`.trim() : data.clientPerson ? data.clientPerson.firstName + " " + data.clientPerson.lastName : ""}
+                            initialClientName={
+                                data?.clientOrg && data?.clientPerson
+                                    ? `${data.clientOrg.name} - ${data.clientPerson.firstName} ${data.clientPerson.lastName}`
+                                    : data?.clientOrg
+                                        ? data.clientOrg.name
+                                        : data?.clientPerson
+                                            ? `${data.clientPerson.firstName} ${data.clientPerson.lastName}`
+                                            : ""
+                            }
                             onClientSelect={(clientPersonId, clientOrganizationId) => {
                                 setSelectedClientPersonId(clientPersonId);
                                 setSelectedClientOrganizationId(clientOrganizationId);
@@ -122,14 +138,22 @@ const EventForm = ({
                             selectorId="event-venue"
                             selectedPersonId={selectedVenuePersonId}
                             selectedOrganizationId={selectedVenueOrganizationId}
-                            initialClientName={data.venueOrganization ? `${data.venueOrganization.name} - ${data.venuePerson ? data.venuePerson.firstName + " " + data.venuePerson.lastName : ""}`.trim() : data.venuePerson ? data.venuePerson.firstName + " " + data.venuePerson.lastName : ""}
+                            initialClientName={
+                                data?.venueOrganization && data?.venuePerson
+                                    ? `${data.venueOrganization.name} - ${data.venuePerson.firstName} ${data.venuePerson.lastName}`
+                                    : data?.venueOrganization
+                                        ? data.venueOrganization.name
+                                        : data?.venuePerson
+                                            ? `${data.venuePerson.firstName} ${data.venuePerson.lastName}`
+                                            : ""
+                            }
                             onClientSelect={(venuePersonId, venueOrganizationId) => {
                                 setSelectedVenuePersonId(venuePersonId);
                                 setSelectedVenueOrganizationId(venueOrganizationId);
                                 setValue("venuePersonEntityId", venuePersonId);
                                 setValue("venueOrganizationEntityId", venueOrganizationId || "");
                             }}
-                            error={errors?.clientPersonEntityId}
+                            error={errors?.venuePersonEntityId}
                         />
 
                         <InputField label="Location" name="location" defaultValue={data?.event?.location} register={register} error={errors?.location} />
@@ -165,7 +189,15 @@ const EventForm = ({
                             selectorId="event-billing-contact"
                             selectedPersonId={selectedBillingContactPersonId}
                             selectedOrganizationId={selectedBillingContactOrganizationId}
-                            initialClientName={data.billingContactOrg ? `${data.billingContactOrg.name} - ${data.billingContactPerson ? data.billingContactPerson.firstName + " " + data.billingContactPerson.lastName : ""}`.trim() : data.billingContactPerson ? data.billingContactPerson.firstName + " " + data.billingContactPerson.lastName : ""}
+                            initialClientName={
+                                data?.billingContactOrg && data?.billingContactPerson
+                                    ? `${data.billingContactOrg.name} - ${data.billingContactPerson.firstName} ${data.billingContactPerson.lastName}`
+                                    : data?.billingContactOrg
+                                        ? data.billingContactOrg.name
+                                        : data?.billingContactPerson
+                                            ? `${data.billingContactPerson.firstName} ${data.billingContactPerson.lastName}`
+                                            : ""
+                            }
                             onClientSelect={(billingPersonId, billingOrganizationId) => {
                                 setSelectedBillingContactPersonId(billingPersonId);
                                 setSelectedBillingContactOrganizationId(billingOrganizationId);

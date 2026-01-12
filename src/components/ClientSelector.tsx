@@ -74,7 +74,7 @@ const ClientSelector = ({ label, selectorId, selectedPersonId = "", selectedOrga
                         <span className="text-gray-400">Select...</span>
                     )}
                 </div>
-                {selectedPersonId && (
+                {(selectedPersonId || selectedOrganizationId) && (
                     <button
                         type="button"
                         onClick={handleClear}

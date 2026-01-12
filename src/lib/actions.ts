@@ -33,7 +33,7 @@ export const createContact = async (
         note: data.note,
         referredBy: data.referral,
         jobTitle: data.jobTitle,
-        agentPersonEntityId: data.agentId,
+        agentPersonEntityId: data.agentId || null,
       },
     })
     await prisma.address.create({
@@ -41,9 +41,9 @@ export const createContact = async (
         address1: data.address1,
         address2: data.address2,
         city: data.city,
-        stateId: data.state,
+        stateId: data.state || null,
         zip: data.zip,
-        countryId: data.country,
+        countryId: data.country || null,
         entityId: entity.id,
       }
     })
@@ -101,7 +101,7 @@ try {
         note: data.note,
         referredBy: data.referral,
         jobTitle: data.jobTitle,
-        agentPersonEntityId: data.agentId,
+        agentPersonEntityId: data.agentId || null,
       },
     })
     // Handle address - create if doesn't exist, update if exists
@@ -116,9 +116,9 @@ try {
           address1: data.address1,
           address2: data.address2,
           city: data.city,
-          stateId: data.state,
+          stateId: data.state || null,
           zip: data.zip,
-          countryId: data.country,
+          countryId: data.country || null,
         }
       });
     } else {
@@ -130,9 +130,9 @@ try {
           address1: data.address1,
           address2: data.address2,
           city: data.city,
-          stateId: data.state,
+          stateId: data.state || null,
           zip: data.zip,
-          countryId: countryId?.id,
+          countryId: data.country || null,
           entityId: data.id!,
         }
       });
@@ -248,19 +248,19 @@ export const createEvent = async (
         entityId: entity.id,
         name: data.name,
         note: data.note,
-        startDate: data.startDate || null,
-        endDate: data.endDate || null,
+        startDate: data.startDate? data.startDate + ":00Z" : new Date().toISOString(),
+        endDate: data.endDate? data.endDate + ":00Z" : null,
         clientPersonEntityId: data.clientPersonEntityId || null,
         clientOrganizationEntityId: data.clientOrganizationEntityId || null,
         venuePersonEntityId: data.venuePersonEntityId || null,
         venueOrganizationEntityId: data.venueOrganizationEntityId || null,
         location: data.location,
-        eventTypeId: data.eventTypeId,
+        eventTypeId: data.eventTypeId || null,
         billingContactPersonEntityId: data.billingContactPersonEntityId || null,
         billingContactOrganizationEntityId: data.billingContactOrganizationEntityId || null,
         budget: data.budget,
-        agentPersonEntityId: data.agentId,
-        eventStatusId: data.eventStatusId,
+        agentPersonEntityId: data.agentId || null,
+        eventStatusId: data.eventStatusId || null,
         contractSentDate: data.contractSentDate || null,
         contractReturnedDate: data.contractReturnedDate || null,
         eventForm: data.eventForm,
@@ -295,8 +295,8 @@ export const updateEvent = async (
         venuePersonEntityId: data.venuePersonEntityId || null,
         venueOrganizationEntityId: data.venueOrganizationEntityId || null,
         location: data.location,
-        startDate: data.startDate || null,
-        endDate: data.endDate || null,
+        startDate: data.startDate + ":00Z" || null,
+        endDate: data.endDate + ":00Z" || null,
         eventTypeId: data.eventTypeId || null,
         billingContactPersonEntityId: data.billingContactPersonEntityId || null,
         billingContactOrganizationEntityId: data.billingContactOrganizationEntityId || null,
@@ -359,7 +359,7 @@ export const createOrganization = async (
         note: data.note,
         referredBy: data.referral,
         entityId: entity.id,
-        agentPersonEntityId: data.agentId,
+        agentPersonEntityId: data.agentId || null,
       },
     })
     await prisma.address.create({
@@ -367,9 +367,9 @@ export const createOrganization = async (
         address1: data.address1,
         address2: data.address2,
         city: data.city,
-        stateId: data.state,
+        stateId: data.state || null,
         zip: data.zip,
-        countryId: data.country,
+        countryId: data.country || null,
         entityId: entity.id,
       }
     })
@@ -449,7 +449,7 @@ export const updateOrganization = async (
         name: data.name,
         note: data.note,
         referredBy: data.referral,
-        agentPersonEntityId: data.agentId,
+        agentPersonEntityId: data.agentId || null,
       },
     })
     // Handle address - create if doesn't exist, update if exists
@@ -464,9 +464,9 @@ export const updateOrganization = async (
           address1: data.address1,
           address2: data.address2,
           city: data.city,
-          stateId: data.state,
+          stateId: data.state || null,
           zip: data.zip,
-          countryId: data.country,
+          countryId: data.country || null,
         }
       });
     } else {
@@ -475,9 +475,9 @@ export const updateOrganization = async (
           address1: data.address1,
           address2: data.address2,
           city: data.city,
-          stateId: data.state,
+          stateId: data.state || null,
           zip: data.zip,
-          countryId: data.country,
+          countryId: data.country || null,
           entityId: data.id!,
         }
       });
@@ -770,6 +770,12 @@ export const updateProduct = async (
       },
       data: {
         name: data.name,
+        bookingContactPersonEntityId: data.bookingContactId || null,
+        grossPrice: data.grossPrice,
+        feePercent: data.feePercent,
+        available: data.available,
+        note: data.note,
+        productTypeId: data.productTypeId,
         description: data.description,
       },
     });
@@ -857,6 +863,12 @@ export const updateEntertainer = async (
       },
       data: {
         name: data.name,
+        bookingContactPersonEntityId: data.bookingContactId,
+        grossPrice: data.grossPrice,
+        feePercent: data.feePercent,
+        available: data.available,
+        note: data.note,
+        productTypeId: data.productTypeId,
         description: data.description,
       },
     });

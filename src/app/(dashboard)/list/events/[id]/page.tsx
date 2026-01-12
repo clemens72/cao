@@ -112,8 +112,8 @@ const SingleEventPage = async ({
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Client</h3>
                                 <p className="text-sm md:col-span-2">
-                                    <a href={`/list/organizations/${clientOrg?.entityId}`}>{clientOrg ? clientOrg.name : ""}</a> {clientOrg ? `- ` : ""}
-                                    <a href={`/list/contacts/${clientPerson?.entityId}`}>{clientPerson ? `${clientPerson.firstName} ${clientPerson.lastName}` : ""}</a>
+                                    <a href={`/list/organizations/${clientOrg?.entityId}`} className="underline">{clientOrg ? clientOrg.name : ""}</a> {clientOrg && clientPerson ? `- ` : ""}
+                                    <a href={`/list/contacts/${clientPerson?.entityId}`} className="underline">{clientPerson ? `${clientPerson.firstName} ${clientPerson.lastName}` : ""}</a>
                                 </p>
                             </div>
 
@@ -121,8 +121,8 @@ const SingleEventPage = async ({
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Venue</h3>
                                 <p className="text-sm md:col-span-2">
-                                    <a href={`/list/organizations/${venueOrganization?.entityId}`}>{venueOrganization ? venueOrganization.name : ""}</a> {venueOrganization ? `- ` : ""}
-                                    <a href={`/list/contacts/${venuePerson?.entityId}`}>{venuePerson ? `${venuePerson.firstName} ${venuePerson.lastName}` : ""}</a>
+                                    <a href={`/list/organizations/${venueOrganization?.entityId}`} className="underline">{venueOrganization ? venueOrganization.name : ""}</a> {venueOrganization && venuePerson ? `- ` : ""}
+                                    <a href={`/list/contacts/${venuePerson?.entityId}`} className="underline">{venuePerson ? `${venuePerson.firstName} ${venuePerson.lastName}` : ""}</a>
                                 </p>
                             </div>
 
@@ -154,8 +154,8 @@ const SingleEventPage = async ({
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Billing Contact</h3>
                                 <p className="text-sm md:col-span-2">
-                                    <a href={`/list/organizations/${billingContactOrg?.entityId}`}>{billingContactOrg ? billingContactOrg.name : ""}</a> {billingContactOrg ? `- ` : ""}
-                                    <a href={`/list/contacts/${billingContactPerson?.entityId}`}>{billingContactPerson ? `${billingContactPerson.firstName} ${billingContactPerson.lastName}` : ""}</a>
+                                    <a href={`/list/organizations/${billingContactOrg?.entityId}`} className="underline">{billingContactOrg ? billingContactOrg.name : ""}</a> {billingContactOrg && billingContactPerson ? `- ` : ""}
+                                    <a href={`/list/contacts/${billingContactPerson?.entityId}`} className="underline">{billingContactPerson ? `${billingContactPerson.firstName} ${billingContactPerson.lastName}` : ""}</a>
                                 </p>
                             </div>
 
@@ -176,7 +176,7 @@ const SingleEventPage = async ({
                             {/* Budget */}
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Budget</h3>
-                                <p className="text-sm md:col-span-2">{event.budget}</p>
+                                <p className="text-sm md:col-span-2">${event.budget}.00</p>
                             </div>
 
                             {/* Created Date */}

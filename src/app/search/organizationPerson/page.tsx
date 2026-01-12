@@ -106,7 +106,7 @@ const ClientSearchPage = () => {
                         </button>
                         <button
                             onClick={handleAdd}
-                            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium"
+                            className="px-6 py-2 bg-orange hover:bg-orange/80 text-white rounded-md text-sm font-medium"
                         >
                             Add
                         </button>

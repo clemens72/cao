@@ -5,9 +5,7 @@ export const contactSchema = z.object({
     firstName: z
         .string()
         .min(1, { message: "First name is required." }),
-    lastName: z
-        .string()
-        .min(1, { message: "Last name is required." }),
+    lastName: z.string().optional(),
     titleId: z.string().optional(),
     address1: z.string().optional(),
     address2: z.string().optional(),
@@ -23,7 +21,7 @@ export const contactSchema = z.object({
     note: z.string().optional(),
     referral: z.string().optional(),
     jobTitle: z.string().optional(),
-    agentId: z.string().min(1, { message: "Agent is required!" }),
+    agentId: z.string().optional(),
 })
 
 export type ContactSchema = z.infer<typeof contactSchema>
@@ -33,19 +31,19 @@ export const eventSchema = z.object({
     name: z
         .string()
         .min(1, { message: "Event name is required." }),
-    clientPersonEntityId: z.string().min(1, { message: "Client is required!" }),
+    clientPersonEntityId: z.string().optional(),
     clientOrganizationEntityId: z.string().optional(),
-    venuePersonEntityId: z.string().optional(),
-    venueOrganizationEntityId: z.string().optional(),
+    venuePersonEntityId: z.string().optional().or(z.literal("")),
+    venueOrganizationEntityId: z.string().optional().or(z.literal("")),
     location: z.string().optional(),
     startDate: z.string().optional(),
     endDate: z.string().optional(),
-    eventTypeId: z.string().min(1, { message: "Event Type is required!" }),
-    billingContactPersonEntityId: z.string().optional(),
-    billingContactOrganizationEntityId: z.string().optional(),
+    eventTypeId: z.string().optional(),
+    billingContactPersonEntityId: z.string().optional().or(z.literal("")),
+    billingContactOrganizationEntityId: z.string().optional().or(z.literal("")),
     budget: z.string().optional(),
-    agentId: z.string().min(1, { message: "Agent is required!" }),
-    eventStatusId: z.string().min(1, { message: "Event Status is required!" }),
+    agentId: z.string().optional(),
+    eventStatusId: z.string().optional(),
     contractSentDate: z.string().optional(),
     contractReturnedDate: z.string().optional(),
     eventForm: z.enum(["YES", "NO", "N_A"]).optional(),
@@ -67,9 +65,9 @@ export const organizationSchema = z.object({
     address1: z.string().optional(),
     address2: z.string().optional(),
     city: z.string().optional(),
-    state: z.string().min(1, { message: "State is required." }),
+    state: z.string().optional(),
     zip: z.string().optional(),
-    country: z.string().min(1, { message: "Country is required." }),
+    country: z.string().optional(),
     phones: z.array(z.object({
         id: z.string().optional(),
         phoneNumber: z.string(),
@@ -85,7 +83,7 @@ export const organizationSchema = z.object({
     dynamicLists: z.array(z.string()).optional(),
     type: z.string().optional(),
     referral: z.string().optional(),
-    agentId: z.string().min(1, { message: "Agent is required!" }),
+    agentId: z.string().optional(),
     /*
     resources: z.string().optional(),
     contactId: z.string().min(1, { message: "Contact is required!" }), */
