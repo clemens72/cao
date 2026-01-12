@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ClientSelector from "../ClientSelector";
 import { formatDateTimeLocal } from "@/lib/utils";
-import VenueSelector from "../VenueSelector";
+import VenueSelector from "../ContactSelector";
 
 const EventForm = ({
     type,
@@ -33,9 +33,13 @@ const EventForm = ({
         resolver: zodResolver(eventSchema),
     })
 
-    const [selectedClientId, setSelectedClientId] = useState<string>(data?.event?.clientPersonEntityId || "");
-    const [selectedVenueId, setSelectedVenueId] = useState<string>(data?.event?.venueOrganizationEntityId || "");
-    const [selectedBillingContactId, setSelectedBillingContactId] = useState<string>(data?.event?.billingContactPersonEntityId || "");
+    const [selectedClientPersonId, setSelectedClientPersonId] = useState<string>(data?.event?.clientPersonEntityId || "");
+    const [selectedClientOrganizationId, setSelectedClientOrganizationId] = useState<string | null>(data?.event?.clientOrganizationEntityId || null);
+    const [selectedVenuePersonId, setSelectedVenuePersonId] = useState<string>(data?.event?.venuePersonEntiutyId || "");
+    const [selectedVenueOrganizationId, setSelectedVenueOrganizationId] = useState<string | null>(data?.event?.venueOrganizationEntityId || null);
+    const [selectedBillingContactPersonId, setSelectedBillingContactPersonId] = useState<string>(data?.event?.billingContactPersonEntityId || "");
+    const [selectedBillingContactOrganizationId, setSelectedBillingContactOrganizationId] = useState<string | null>(data?.event?.billingContactOrganizationEntityId || null);
+
 
     const [state, formAction] = useActionState(
         type === "create" ? createEvent : updateEvent,
@@ -44,20 +48,6 @@ const EventForm = ({
             error: false,
         }
     );
-
-    /* const onSubmit = handleSubmit(data => {
-        // Add the selected client ID to the form data
-        const submitData = {
-            ...data,
-            clientId: selectedClientId,
-            venueId: selectedVenueId, 
-            billingContactId: selectedBillingContactId
-        };
-        console.log(submitData);
-        startTransition(() => {
-            formAction(submitData);
-        });
-    }); */
 
     const onSubmit = handleSubmit(data => {
         console.log(data);
@@ -77,7 +67,7 @@ const EventForm = ({
 
     }, [state, router, setOpen, type])
 
-    const { contacts, agents, eventTypes, eventStatuses, venues } = relatedData;
+    const { agents, eventTypes, eventStatuses } = relatedData;
 
     return (
         <form className="flex flex-col h-full max-h-[90vh] overflow-hidden" onSubmit={onSubmit}>
@@ -114,24 +104,32 @@ const EventForm = ({
 
                         <ClientSelector
                             label="Client"
-                            contacts={contacts}
-                            selectedClientId={selectedClientId}
-                            onClientSelect={(clientId) => {
-                                setSelectedClientId(clientId);
-                                setValue("clientId", clientId);
+                            selectorId="event-client"
+                            selectedPersonId={selectedClientPersonId}
+                            selectedOrganizationId={selectedClientOrganizationId}
+                            initialClientName={data.clientOrg ? `${data.clientOrg.name} - ${data.clientPerson ? data.clientPerson.firstName + " " + data.clientPerson.lastName : ""}`.trim() : data.clientPerson ? data.clientPerson.firstName + " " + data.clientPerson.lastName : ""}
+                            onClientSelect={(clientPersonId, clientOrganizationId) => {
+                                setSelectedClientPersonId(clientPersonId);
+                                setSelectedClientOrganizationId(clientOrganizationId);
+                                setValue("clientPersonEntityId", clientPersonId);
+                                setValue("clientOrganizationEntityId", clientOrganizationId || "");
                             }}
-                            error={errors?.clientId}
+                            error={errors?.clientPersonEntityId}
                         />
 
-                        <VenueSelector
+                        <ClientSelector
                             label="Venue"
-                            venues={venues}
-                            selectedVenueId={selectedVenueId}
-                            onVenueSelect={(venueId) => {
-                                setSelectedVenueId(venueId);
-                                setValue("venueId", venueId);
+                            selectorId="event-venue"
+                            selectedPersonId={selectedVenuePersonId}
+                            selectedOrganizationId={selectedVenueOrganizationId}
+                            initialClientName={data.venueOrganization ? `${data.venueOrganization.name} - ${data.venuePerson ? data.venuePerson.firstName + " " + data.venuePerson.lastName : ""}`.trim() : data.venuePerson ? data.venuePerson.firstName + " " + data.venuePerson.lastName : ""}
+                            onClientSelect={(venuePersonId, venueOrganizationId) => {
+                                setSelectedVenuePersonId(venuePersonId);
+                                setSelectedVenueOrganizationId(venueOrganizationId);
+                                setValue("venuePersonEntityId", venuePersonId);
+                                setValue("venueOrganizationEntityId", venueOrganizationId || "");
                             }}
-                            error={errors?.venueId}
+                            error={errors?.clientPersonEntityId}
                         />
 
                         <InputField label="Location" name="location" defaultValue={data?.event?.location} register={register} error={errors?.location} />
@@ -164,13 +162,17 @@ const EventForm = ({
 
                         <ClientSelector
                             label="Billing Contact"
-                            contacts={contacts}
-                            selectedClientId={selectedBillingContactId}
-                            onClientSelect={(billingContactId) => {
-                                setSelectedBillingContactId(billingContactId);
-                                setValue("billingContactId", billingContactId);
+                            selectorId="event-billing-contact"
+                            selectedPersonId={selectedBillingContactPersonId}
+                            selectedOrganizationId={selectedBillingContactOrganizationId}
+                            initialClientName={data.billingContactOrg ? `${data.billingContactOrg.name} - ${data.billingContactPerson ? data.billingContactPerson.firstName + " " + data.billingContactPerson.lastName : ""}`.trim() : data.billingContactPerson ? data.billingContactPerson.firstName + " " + data.billingContactPerson.lastName : ""}
+                            onClientSelect={(billingPersonId, billingOrganizationId) => {
+                                setSelectedBillingContactPersonId(billingPersonId);
+                                setSelectedBillingContactOrganizationId(billingOrganizationId);
+                                setValue("billingContactPersonEntityId", billingPersonId);
+                                setValue("billingContactOrganizationEntityId", billingOrganizationId || "");
                             }}
-                            error={errors?.billingContactId}
+                            error={errors?.billingContactPersonEntityId}
                         />
 
                         {/* Contacts */}

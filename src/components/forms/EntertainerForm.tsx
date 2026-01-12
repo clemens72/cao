@@ -31,7 +31,8 @@ const EntertainerForm = ({
         resolver: zodResolver(entertainerSchema),
     })
 
-    const [selectedBookingContactId, setSelectedBookingContactId] = useState<string>(data?.product?.bookingContactPersonEntityId || "");
+    const [selectedBookingContactPersonId, setSelectedBookingContactPersonId] = useState<string>(data?.event?.billingContactPersonEntityId || "");
+    const [selectedBookingContactOrganizationId, setSelectedBookingContactOrganizationId] = useState<string | null>(data?.event?.billingContactOrganizationEntityId || null);
 
     const [state, formAction] = useActionState(
         type === "create" ? createEntertainer : updateEntertainer,
@@ -44,8 +45,7 @@ const EntertainerForm = ({
     const onSubmit = handleSubmit(data => {
         // Add the selected client ID to the form data
         const submitData = {
-            ...data,
-            bookingContactId: selectedBookingContactId
+            ...data
         };
         console.log(submitData);
         startTransition(() => {
@@ -103,13 +103,17 @@ const EntertainerForm = ({
 
                         <ClientSelector
                             label="Booking Contact"
-                            contacts={contacts}
-                            selectedClientId={selectedBookingContactId}
-                            onClientSelect={(bookingContactId) => {
-                                setSelectedBookingContactId(bookingContactId);
-                                setValue("bookingContactId", bookingContactId);
+                            selectorId="event-booking-contact"
+                            selectedPersonId={selectedBookingContactPersonId}
+                            selectedOrganizationId={selectedBookingContactOrganizationId}
+                            initialClientName={data.bookingContactOrg ? `${data.bookingContactOrg.name} - ${data.bookingContactPerson ? data.bookingContactPerson.firstName + " " + data.bookingContactPerson.lastName : ""}`.trim() : data.bookingContactPerson ? data.bookingContactPerson.firstName + " " + data.bookingContactPerson.lastName : ""}
+                            onClientSelect={(bookingPersonId, bookingOrganizationId) => {
+                                setSelectedBookingContactPersonId(bookingPersonId);
+                                setSelectedBookingContactOrganizationId(bookingOrganizationId);
+                                setValue("bookingContactPersonEntityId", bookingPersonId);
+                                setValue("bookingContactOrganizationEntityId", bookingOrganizationId || "");
                             }}
-                            error={errors?.bookingContactId}
+                            error={errors?.bookingContactPersonEntityId}
                         />
 
                         {/* Phones */}

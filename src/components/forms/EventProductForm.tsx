@@ -9,7 +9,7 @@ import { Dispatch, SetStateAction, startTransition, useActionState, useEffect, u
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ClientSelector from "../ClientSelector";
-import VenueSelector from "../VenueSelector";
+import VenueSelector from "../ContactSelector";
 
 const EventProductForm = ({
     type,
@@ -33,8 +33,10 @@ const EventProductForm = ({
     })
 
     const [selectedProductId, setSelectedProductId] = useState<string>(data?.productEntityId || "");
-    const [selectedBookingContactId, setSelectedBookingContactId] = useState<string>(data?.bookingContactId || "");
-    const [selectedVenueId, setSelectedVenueId] = useState<string>(data?.venueOrganizationEntityId || "");
+    const [selectedBookingContactPersonId, setSelectedBookingContactPersonId] = useState<string>(data?.event?.billingContactPersonEntityId || "");
+    const [selectedBookingContactOrganizationId, setSelectedBookingContactOrganizationId] = useState<string | null>(data?.event?.billingContactOrganizationEntityId || null);
+    const [selectedVenuePersonId, setSelectedVenuePersonId] = useState<string>(data?.event?.venuePersonEntiutyId || "");
+    const [selectedVenueOrganizationId, setSelectedVenueOrganizationId] = useState<string | null>(data?.event?.venueOrganizationEntityId || null);
     const [selectedVenueResourceId, setSelectedVenueResourceId] = useState<string>(data?.venueOrganizationResourceId || "");
     const [selectedProductStatusId, setSelectedProductStatusId] = useState<string>(data?.productStatusId || "");
 
@@ -48,12 +50,7 @@ const EventProductForm = ({
 
     const onSubmit = handleSubmit(data => {
         const submitData = {
-            ...data,
-            productEntityId: selectedProductId,
-            bookingContactId: selectedBookingContactId,
-            venueOrganizationEntityId: selectedVenueId,
-            venueOrganizationResourceId: selectedVenueResourceId,
-            productStatusId: selectedProductStatusId,
+            ...data
         };
         console.log(submitData);
         startTransition(() => {
@@ -105,7 +102,7 @@ const EventProductForm = ({
                     {/* Left Column */}
                     <div className="space-y-5">
                         {/* Product Name */}
-                        <ClientSelector
+                        {/* <ClientSelector
                             label="Product Name"
                             contacts={products?.map((p: any) => ({ entityId: p.entityId, firstName: p.name, lastName: "" })) || []}
                             selectedClientId={selectedProductId}
@@ -114,30 +111,38 @@ const EventProductForm = ({
                                 setValue("productEntityId", productId);
                             }}
                             error={errors?.productEntityId}
-                        />
+                        /> */}
 
                         {/* Booking Contact */}
                         <ClientSelector
                             label="Booking Contact"
-                            contacts={contacts || []}
-                            selectedClientId={selectedBookingContactId}
-                            onClientSelect={(bookingContactId) => {
-                                setSelectedBookingContactId(bookingContactId);
-                                setValue("bookingContactId", bookingContactId);
+                            selectorId="event-booking-contact"
+                            selectedPersonId={selectedBookingContactPersonId}
+                            selectedOrganizationId={selectedBookingContactOrganizationId}
+                            initialClientName={data.bookingContactOrg ? `${data.bookingContactOrg.name} - ${data.bookingContactPerson ? data.bookingContactPerson.firstName + " " + data.bookingContactPerson.lastName : ""}`.trim() : data.bookingContactPerson ? data.bookingContactPerson.firstName + " " + data.bookingContactPerson.lastName : ""}
+                            onClientSelect={(bookingPersonId, bookingOrganizationId) => {
+                                setSelectedBookingContactPersonId(bookingPersonId);
+                                setSelectedBookingContactOrganizationId(bookingOrganizationId);
+                                setValue("bookingContactPersonEntityId", bookingPersonId);
+                                setValue("bookingContactOrganizationEntityId", bookingOrganizationId || "");
                             }}
-                            error={errors?.bookingContactId}
+                            error={errors?.bookingContactPersonEntityId}
                         />
 
                         {/* Venue */}
-                        <VenueSelector
+                        <ClientSelector
                             label="Venue"
-                            venues={venues || []}
-                            selectedVenueId={selectedVenueId}
-                            onVenueSelect={(venueId) => {
-                                setSelectedVenueId(venueId);
-                                setValue("venueOrganizationEntityId", venueId);
+                            selectorId="event-venue"
+                            selectedPersonId={selectedVenuePersonId}
+                            selectedOrganizationId={selectedVenueOrganizationId}
+                            initialClientName={data.venueOrganization ? `${data.venueOrganization.name} - ${data.venuePerson ? data.venuePerson.firstName + " " + data.venuePerson.lastName : ""}`.trim() : data.venuePerson ? data.venuePerson.firstName + " " + data.venuePerson.lastName : ""}
+                            onClientSelect={(venuePersonId, venueOrganizationId) => {
+                                setSelectedVenuePersonId(venuePersonId);
+                                setSelectedVenueOrganizationId(venueOrganizationId);
+                                setValue("venuePersonEntityId", venuePersonId);
+                                setValue("venueOrganizationEntityId", venueOrganizationId || "");
                             }}
-                            error={errors?.venueOrganizationEntityId}
+                            error={errors?.venuePersonEntityId}
                         />
 
                         {/* Venue Resource */}

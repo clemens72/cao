@@ -29,14 +29,25 @@ const SingleEventPage = async ({
         where: { id: event.eventStatusId || "" },
     })
 
-    const client = await prisma.person.findUnique({
+    const clientPerson = await prisma.person.findUnique({
         where: { entityId: event.clientPersonEntityId || "" },
     })
-    const venue = await prisma.organization.findUnique({
+    const clientOrg = await prisma.organization.findUnique({
+        where: { entityId: event.clientOrganizationEntityId || "" },
+    })
+
+    const venuePerson = await prisma.person.findUnique({
+        where: { entityId: event.venuePersonEntityId || "" },
+    })
+    const venueOrganization = await prisma.organization.findUnique({
         where: { entityId: event.venueOrganizationEntityId || "" },
     })
-    const billingContact = await prisma.person.findUnique({
+
+    const billingContactPerson = await prisma.person.findUnique({
         where: { entityId: event.billingContactPersonEntityId || "" },
+    })
+    const billingContactOrg = await prisma.organization.findUnique({
+        where: { entityId: event.billingContactOrganizationEntityId || "" },
     })
     const agent = await prisma.person.findUnique({
         where: { entityId: event.agentPersonEntityId || "" },
@@ -57,9 +68,12 @@ const SingleEventPage = async ({
         event,
         eventType,
         eventStatus,
-        client,
-        venue,
-        billingContact,
+        clientPerson,
+        clientOrg,
+        venueOrganization,
+        venuePerson,
+        billingContactPerson,
+        billingContactOrg,
         agent,
         contacts,
     }
@@ -95,55 +109,60 @@ const SingleEventPage = async ({
                         {/* Left Column */}
                         <div className="space-y-4">
                             {/* Client */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Client</h3>
-                                <p className="text-sm">{client?.firstName} {client?.lastName}</p>
+                                <p className="text-sm md:col-span-2">
+                                    <a href={`/list/organizations/${clientOrg?.entityId}`}>{clientOrg ? clientOrg.name : ""}</a> {clientOrg ? `- ` : ""}
+                                    <a href={`/list/contacts/${clientPerson?.entityId}`}>{clientPerson ? `${clientPerson.firstName} ${clientPerson.lastName}` : ""}</a>
+                                </p>
                             </div>
 
                             {/* Venue */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Venue</h3>
-                                <p className="text-sm">{venue?.name}</p>
+                                <p className="text-sm md:col-span-2">
+                                    <a href={`/list/organizations/${venueOrganization?.entityId}`}>{venueOrganization ? venueOrganization.name : ""}</a> {venueOrganization ? `- ` : ""}
+                                    <a href={`/list/contacts/${venuePerson?.entityId}`}>{venuePerson ? `${venuePerson.firstName} ${venuePerson.lastName}` : ""}</a>
+                                </p>
                             </div>
 
                             {/* Location */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Location</h3>
-                                <p className="text-sm">{event.location}</p>
+                                <p className="text-sm md:col-span-2">{event.location}</p>
                             </div>
 
                             {/* Start Date */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Start Date</h3>
-                                <p className="text-sm">{formatDate(event.startDate)}</p>
+                                <p className="text-sm md:col-span-2">{formatDate(event.startDate)}</p>
                             </div>
 
                             {/* End Date */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">End Date</h3>
-                                <p className="text-sm">{formatDate(event.endDate)}</p>
+                                <p className="text-sm md:col-span-2">{formatDate(event.endDate)}</p>
                             </div>
 
                             {/* Event Type */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Event Type</h3>
-                                <p className="text-sm">{eventType?.description}</p>
+                                <p className="text-sm md:col-span-2">{eventType?.description}</p>
                             </div>
 
                             {/* Billing Contact */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Billing Contact</h3>
-                                {billingContact ? (
-                                    <p className="text-sm">{billingContact.firstName} {billingContact.lastName}</p>
-                                ) : (
-                                    <p className="text-sm text-red-400">No billing contact assigned</p>
-                                )}
+                                <p className="text-sm md:col-span-2">
+                                    <a href={`/list/organizations/${billingContactOrg?.entityId}`}>{billingContactOrg ? billingContactOrg.name : ""}</a> {billingContactOrg ? `- ` : ""}
+                                    <a href={`/list/contacts/${billingContactPerson?.entityId}`}>{billingContactPerson ? `${billingContactPerson.firstName} ${billingContactPerson.lastName}` : ""}</a>
+                                </p>
                             </div>
 
                             {/* Contacts */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Contacts</h3>
-                                <div className="text-sm space-y-1">
+                                <div className="text-sm space-y-1 md:col-span-2">
                                     {contacts.length > 0 ? (
                                         contacts.map((contact) => (
                                             <p key={contact.id}>{getPersonName(contact.personEntityId)}</p>
@@ -155,31 +174,31 @@ const SingleEventPage = async ({
                             </div>
 
                             {/* Budget */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Budget</h3>
-                                <p className="text-sm">{event.budget}</p>
+                                <p className="text-sm md:col-span-2">{event.budget}</p>
                             </div>
 
                             {/* Created Date */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Created Date</h3>
-                                <p className="text-sm">{formatDate(entity?.createDate)}</p>
+                                <p className="text-sm md:col-span-2">{formatDate(entity?.createDate)}</p>
                             </div>
 
                             {/* Agent */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Agent</h3>
                                 {agent ? (
-                                    <p className="text-sm">{agent.firstName} {agent.lastName}</p>
+                                    <p className="text-sm md:col-span-2">{agent.firstName} {agent.lastName}</p>
                                 ) : (
-                                    <p className="text-sm text-red-400">No agent assigned</p>
+                                    <p className="text-sm md:col-span-2 text-red-400">No agent assigned</p>
                                 )}
                             </div>
 
                             {/* Note */}
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Note</h3>
-                                <p className="text-sm whitespace-pre-wrap">{event.note || "No notes available"}</p>
+                                <p className="text-sm md:col-span-2 whitespace-pre-wrap">{event.note || "No notes available"}</p>
                             </div>
 
                         </div>

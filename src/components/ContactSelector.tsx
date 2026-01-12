@@ -3,42 +3,43 @@
 import { useState } from "react";
 import Image from "next/image";
 
-type Venue = {
+type Person = {
     entityId: string;
-    name: string;
+    firstName: string;
+    lastName: string;
 };
 
-type VenueSelectorProps = {
+type ContactSelectorProps = {
     label: string;
-    venues: Venue[];
-    selectedVenueId?: string;
-    onVenueSelect: (venueId: string, venueName: string) => void;
+    contacts: Person[];
+    selectedContactId?: string;
+    onContactSelect: (contactId: string, contactName: string) => void;
     error?: any;
 };
 
-const VenueSelector = ({ label, venues, selectedVenueId, onVenueSelect, error }: VenueSelectorProps) => {
+const ContactSelector = ({ label, contacts, selectedContactId, onContactSelect, error }: ContactSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
-    const selectedVenue = venues?.find(v => v.entityId === selectedVenueId);
-    const selectedVenueName = selectedVenue
-        ? `${selectedVenue.name}`
+    const selectedContact = contacts?.find(c => c.entityId === selectedContactId);
+    const selectedContactName = selectedContact
+        ? `${selectedContact.firstName} ${selectedContact.lastName}`
         : "";
 
-    const filteredVenues = venues?.filter(venue =>
-        `${venue.name}`
+    const filteredContacts = contacts?.filter(contact =>
+        `${contact.firstName} ${contact.lastName}`
             .toLowerCase()
             .includes(searchTerm.toLowerCase())
     ) || [];
 
-    const handleSelectVenue = (venue: Venue) => {
-        onVenueSelect(venue.entityId, `${venue.name}`);
+    const handleSelectContact = (contact: Person) => {
+        onContactSelect(contact.entityId, `${contact.firstName} ${contact.lastName}`);
         setIsOpen(false);
         setSearchTerm("");
     };
 
     const handleClear = () => {
-        onVenueSelect("", "");
+        onContactSelect("", "");
     };
 
     return (
@@ -51,11 +52,11 @@ const VenueSelector = ({ label, venues, selectedVenueId, onVenueSelect, error }:
                     className="flex-1 p-2 border border-gray-300 rounded-md bg-white text-sm cursor-pointer hover:border-orange focus:ring-2 focus:ring-orange"
                     onClick={() => setIsOpen(true)}
                 >
-                    {selectedVenueName || (
-                        <span className="text-gray-400">Select a venue...</span>
+                    {selectedContactName || (
+                        <span className="text-gray-400">Select a contact...</span>
                     )}
                 </div>
-                {selectedVenueId && (
+                {selectedContactId && (
                     <button
                         type="button"
                         onClick={handleClear}
@@ -84,7 +85,7 @@ const VenueSelector = ({ label, venues, selectedVenueId, onVenueSelect, error }:
                     >
                         {/* Header */}
                         <div className="px-6 py-4 border-b flex items-center justify-between">
-                            <h2 className="text-xl font-semibold text-gray-800">Select a Venue</h2>
+                            <h2 className="text-xl font-semibold text-gray-800">Select a Contact</h2>
                             <button
                                 onClick={() => setIsOpen(false)}
                                 className="text-gray-500 hover:text-gray-700"
@@ -105,24 +106,24 @@ const VenueSelector = ({ label, venues, selectedVenueId, onVenueSelect, error }:
                             />
                         </div>
 
-                        {/* Venue List */}
+                        {/* Contact List */}
                         <div className="flex-1 overflow-y-auto px-6 py-4">
-                            {filteredVenues.length === 0 ? (
-                                <p className="text-center text-gray-500 py-8">No venues found</p>
+                            {filteredContacts.length === 0 ? (
+                                <p className="text-center text-gray-500 py-8">No contacts found</p>
                             ) : (
                                 <div className="space-y-2">
-                                    {filteredVenues.map((venue) => (
+                                    {filteredContacts.map((contact) => (
                                         <div
-                                            key={venue.entityId}
+                                            key={contact.entityId}
                                             className={`p-3 rounded-md cursor-pointer transition-colors ${
-                                                venue.entityId === selectedVenueId
+                                                contact.entityId === selectedContactId
                                                     ? "bg-orange text-white"
                                                     : "hover:bg-gray-100"
                                             }`}
-                                            onClick={() => handleSelectVenue(venue)}
+                                            onClick={() => handleSelectContact(contact)}
                                         >
                                             <div className="font-medium">
-                                                {venue.name}
+                                                {contact.firstName} {contact.lastName}
                                             </div>
                                         </div>
                                     ))}
@@ -146,4 +147,4 @@ const VenueSelector = ({ label, venues, selectedVenueId, onVenueSelect, error }:
     );
 };
 
-export default VenueSelector;
+export default ContactSelector;

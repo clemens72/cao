@@ -103,10 +103,6 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
                 break;
 
             case "events":
-                const eventContacts = await prisma.person.findMany({
-                    select: { entityId: true, firstName: true, lastName: true },
-                    orderBy: { lastName: 'asc' }
-                });
                 const venues = await prisma.organization.findMany({
                     select: { entityId: true, name: true },
                     orderBy: { name: 'asc' }
@@ -129,7 +125,6 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
                     orderBy: { lastName: 'asc' }
                 });
                 relatedData = {
-                    contacts: eventContacts,
                     agents: eventAgents,
                     eventTypes: eventTypes,
                     eventStatuses: eventStatuses,

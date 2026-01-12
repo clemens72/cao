@@ -9,6 +9,7 @@ import { Dispatch, SetStateAction, startTransition, useActionState, useEffect, u
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ClientSelector from "../ClientSelector";
+import ContactSelector from "../ContactSelector";
 
 const ProductForm = ({
     type,
@@ -45,7 +46,6 @@ const ProductForm = ({
         // Add the selected client ID to the form data
         const submitData = {
             ...data,
-            bookingContactId: selectedBookingContactId
         };
         console.log(submitData);
         startTransition(() => {
@@ -101,11 +101,11 @@ const ProductForm = ({
 
                         {/* Electronic Addresses */}
 
-                        <ClientSelector
+                        <ContactSelector
                             label="Booking Contact"
                             contacts={contacts}
-                            selectedClientId={selectedBookingContactId}
-                            onClientSelect={(bookingContactId) => {
+                            selectedContactId={selectedBookingContactId}
+                            onContactSelect={(bookingContactId) => {
                                 setSelectedBookingContactId(bookingContactId);
                                 setValue("bookingContactId", bookingContactId);
                             }}
