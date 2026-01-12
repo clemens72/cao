@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma"
 import FormContainer from "@/components/FormContainer"
 import { formatDate, getOrganizationName, getPersonName, getProductName, getProductStatus } from "@/lib/utils"
 import Table from "@/components/Table"
+import PaginatedTable from "@/components/PaginatedTable"
 import { EventProduct } from "@/generated/prisma"
 
 const SingleEventPage = async ({
@@ -345,17 +346,21 @@ const SingleEventPage = async ({
                         <h1 className="text-xl font-bold text-gray-800 mb-6">Products</h1>
                         <FormContainer table="eventProducts" type="create" data={{ eventEntityId: id }} />
                     </div>
-                    <Table columns={[
-                        { header: "Product Name", accessor: "productName" },
-                        { header: "Status", accessor: "status" },
-                        { header: "Start Time", accessor: "startTime" },
-                        { header: "End Time", accessor: "endTime" },
-                        { header: "Venue", accessor: "venue" },
-                        { header: "Product Fee", accessor: "productFee" },
-                        { header: "Booking Fee", accessor: "bookingFee" },
-                        { header: "Total Balance Due", accessor: "totalBalanceDue" },
-                    ]}
-                        renderRow={renderProducts} data={eventProducts} />
+                    <PaginatedTable 
+                        columns={[
+                            { header: "Product Name", accessor: "productName" },
+                            { header: "Status", accessor: "status" },
+                            { header: "Start Time", accessor: "startTime" },
+                            { header: "End Time", accessor: "endTime" },
+                            { header: "Venue", accessor: "venue" },
+                            { header: "Product Fee", accessor: "productFee" },
+                            { header: "Booking Fee", accessor: "bookingFee" },
+                            { header: "Total Balance Due", accessor: "totalBalanceDue" },
+                        ]}
+                        rows={eventProducts.map((item) => renderProducts(item))} 
+                        totalCount={eventProducts.length}
+                        itemsPerPage={10} 
+                    />
                 </div>
                 <div className="bg-white p-6 rounded-md shadow">
                     <div className="justify-between items-center mb-6 flex">

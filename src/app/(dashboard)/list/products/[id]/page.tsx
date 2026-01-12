@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma"
 import FormContainer from "@/components/FormContainer"
 import { formatDate, getElectronicAddressType, getEventName, getPhoneType, getProductCategoryName, getProductStatus } from "@/lib/utils";
 import Table from "@/components/Table";
+import PaginatedTable from "@/components/PaginatedTable";
 import { EventProduct } from "@/generated/prisma";
 import Link from "next/link";
 
@@ -311,13 +312,18 @@ const SingleProductPage = async ({
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Events</h1>
                 </div>
-                <Table columns={[
-                    { header: "Name", accessor: "name" },
-                    { header: "Date", accessor: "date" },
-                    { header: "Product Status", accessor: "productStatus" },
-                    { header: "Contract Returned", accessor: "contractReturned" },
-                    { header: "Gross Price", accessor: "grossPrice" }
-                ]} renderRow={renderEvents} data={productEvents} />
+                <PaginatedTable 
+                    columns={[
+                        { header: "Name", accessor: "name" },
+                        { header: "Date", accessor: "date" },
+                        { header: "Product Status", accessor: "productStatus" },
+                        { header: "Contract Returned", accessor: "contractReturned" },
+                        { header: "Gross Price", accessor: "grossPrice" }
+                    ]} 
+                    rows={productEvents.map((item) => renderEvents(item))} 
+                    totalCount={productEvents.length}
+                    itemsPerPage={10} 
+                />
             </div>
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">

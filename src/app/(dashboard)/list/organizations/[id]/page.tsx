@@ -1,5 +1,6 @@
 import FormContainer from "@/components/FormContainer";
 import Table from "@/components/Table";
+import PaginatedTable from "@/components/PaginatedTable";
 import { OrganizationPerson, Event, EventProduct } from "@/generated/prisma";
 import prisma from "@/lib/prisma"
 import { formatDate, getElectronicAddressType, getEventName, getEventPrice, getEventStatus, getPersonName, getPhoneType, getProductName, getProductStatus } from "@/lib/utils"
@@ -332,26 +333,36 @@ const SingleOrganizationPage = async ({
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Contacts</h1>
                     <FormContainer table="organizationPersons" type="create" data={{ eventEntityId: id }} />
                 </div>
-                <Table columns={[
-                    { header: "Name", accessor: "name" },
-                    { header: "Primary", accessor: "isPrimary" },
-                    { header: "Effective Date", accessor: "effectiveDate" },
-                    { header: "Expiration Date", accessor: "expirationDate" }
-                ]} renderRow={renderContacts} data={organizationContacts} />
+                <PaginatedTable 
+                    columns={[
+                        { header: "Name", accessor: "name" },
+                        { header: "Primary", accessor: "isPrimary" },
+                        { header: "Effective Date", accessor: "effectiveDate" },
+                        { header: "Expiration Date", accessor: "expirationDate" }
+                    ]} 
+                    rows={organizationContacts.map((item) => renderContacts(item))} 
+                    totalCount={organizationContacts.length}
+                    itemsPerPage={10} 
+                />
             </div>
 
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Events</h1>
                 </div>
-                <Table columns={[
-                    { header: "Name", accessor: "name" },
-                    { header: "Date", accessor: "date" },
-                    { header: "Association", accessor: "association" },
-                    { header: "Event Status", accessor: "Event Status" },
-                    { header: "Contract Returned", accessor: "contractReturned" },
-                    { header: "Event Cost", accessor: "eventCost" }
-                ]} renderRow={renderEvents} data={organizationEvents} />
+                <PaginatedTable 
+                    columns={[
+                        { header: "Name", accessor: "name" },
+                        { header: "Date", accessor: "date" },
+                        { header: "Association", accessor: "association" },
+                        { header: "Event Status", accessor: "Event Status" },
+                        { header: "Contract Returned", accessor: "contractReturned" },
+                        { header: "Event Cost", accessor: "eventCost" }
+                    ]} 
+                    rows={organizationEvents.map((item) => renderEvents(item))} 
+                    totalCount={organizationEvents.length}
+                    itemsPerPage={10} 
+                />
             </div>
 
             <div className="bg-white p-6 rounded-md shadow">
@@ -359,14 +370,19 @@ const SingleOrganizationPage = async ({
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Pitched Products</h1>
                     {/* <FormContainer table="clientProductPitches" type="create" data={{ eventEntityId: id }} /> */}
                 </div>
-                <Table columns={[
-                    { header: "Product", accessor: "product" },
-                    { header: "Date", accessor: "date" },
-                    { header: "Status", accessor: "Status" },
-                    { header: "Price", accessor: "Price" },
-                    { header: "Note", accessor: "note" },
-                    { header: "Pitched By", accessor: "pitchedBy" }
-                ]} renderRow={renderPitchedProducts} data={organizationPitchedProducts} />
+                <PaginatedTable 
+                    columns={[
+                        { header: "Product", accessor: "product" },
+                        { header: "Date", accessor: "date" },
+                        { header: "Status", accessor: "Status" },
+                        { header: "Price", accessor: "Price" },
+                        { header: "Note", accessor: "note" },
+                        { header: "Pitched By", accessor: "pitchedBy" }
+                    ]} 
+                    rows={organizationPitchedProducts.map((item) => renderPitchedProducts(item))} 
+                    totalCount={organizationPitchedProducts.length}
+                    itemsPerPage={10} 
+                />
             </div>
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">

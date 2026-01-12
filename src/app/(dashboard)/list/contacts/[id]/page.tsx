@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma"
 import FormContainer from "@/components/FormContainer"
 import { formatDate, getElectronicAddressType, getEventName, getEventPrice, getEventStatus, getOrganizationName, getPersonName, getPhoneType, getProductName, getProductStatus } from "@/lib/utils";
 import Table from "@/components/Table";
+import PaginatedTable from "@/components/PaginatedTable";
 import { Event, EventProduct, OrganizationPerson } from "@/generated/prisma";
 import Link from "next/link";
 
@@ -283,25 +284,35 @@ const SingleContactPage = async ({
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Organization Affiliation</h1>
                     <FormContainer table="organizationPersons" type="create" data={{ eventEntityId: id }} />
                 </div>
-                <Table columns={[
-                    { header: "Name", accessor: "name" },
-                    { header: "Primary Contact", accessor: "isPrimary" },
-                    { header: "Effective Date", accessor: "effectiveDate" },
-                    { header: "Expiration Date", accessor: "expirationDate" }
-                ]} renderRow={renderOrganizations} data={contactOrganizations} />
+                <PaginatedTable 
+                    columns={[
+                        { header: "Name", accessor: "name" },
+                        { header: "Primary Contact", accessor: "isPrimary" },
+                        { header: "Effective Date", accessor: "effectiveDate" },
+                        { header: "Expiration Date", accessor: "expirationDate" }
+                    ]} 
+                    rows={contactOrganizations.map((item) => renderOrganizations(item))} 
+                    totalCount={contactOrganizations.length}
+                    itemsPerPage={10} 
+                />
             </div>
 
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Events</h1>
                 </div>
-                <Table columns={[
-                    { header: "Name", accessor: "Name" },
-                    { header: "Date", accessor: "date" },
-                    { header: "Association", accessor: "association" },
-                    { header: "Status", accessor: "status" },
-                    { header: "Event Cost", accessor: "eventCost" }
-                ]} renderRow={renderEvents} data={contactEvents} />
+                <PaginatedTable 
+                    columns={[
+                        { header: "Name", accessor: "Name" },
+                        { header: "Date", accessor: "date" },
+                        { header: "Association", accessor: "association" },
+                        { header: "Status", accessor: "status" },
+                        { header: "Event Cost", accessor: "eventCost" }
+                    ]} 
+                    rows={contactEvents.map((item) => renderEvents(item))} 
+                    totalCount={contactEvents.length}
+                    itemsPerPage={10} 
+                />
             </div>
 
             <div className="bg-white p-6 rounded-md shadow">
@@ -309,14 +320,19 @@ const SingleContactPage = async ({
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Pitched Products</h1>
                     {/* <FormContainer table="clientProductPitches" type="create" data={{ eventEntityId: id }} /> */}
                 </div>
-                <Table columns={[
-                    { header: "Product", accessor: "product" },
-                    { header: "Date", accessor: "date" },
-                    { header: "Status", accessor: "Status" },
-                    { header: "Price", accessor: "Price" },
-                    { header: "Note", accessor: "note" },
-                    { header: "Pitched By", accessor: "pitchedBy" }
-                ]} renderRow={renderPitchedProducts} data={contactPitchedProducts} />
+                <PaginatedTable 
+                    columns={[
+                        { header: "Product", accessor: "product" },
+                        { header: "Date", accessor: "date" },
+                        { header: "Status", accessor: "Status" },
+                        { header: "Price", accessor: "Price" },
+                        { header: "Note", accessor: "note" },
+                        { header: "Pitched By", accessor: "pitchedBy" }
+                    ]} 
+                    rows={contactPitchedProducts.map((item) => renderPitchedProducts(item))} 
+                    totalCount={contactPitchedProducts.length}
+                    itemsPerPage={10} 
+                />
             </div>
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
