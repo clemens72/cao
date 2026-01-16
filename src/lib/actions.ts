@@ -1017,12 +1017,15 @@ export const updateOrganizationPerson = async (
   currentState: CurrentState,
   data: OrganizationPersonSchema & { id?: string }
 ) => {
+  console.log("Updating OrganizationPerson with data:", data);
   try {
     if (!data.id) {
       throw new Error("ID is required for update");
     }
     await prisma.organizationPerson.update({
-      where: { id: data.id },
+      where: { 
+        id: data.id,
+      },
       data: {
         effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : undefined,
         expirationDate: data.expirationDate ? new Date(data.expirationDate) : null,

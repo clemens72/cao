@@ -85,10 +85,18 @@ const OrganizationPersonForm = ({
                 {data && (<InputField
                     label="organizationEntityId"
                     name="organizationEntityId"
-                    defaultValue={data?.entityId}
+                    defaultValue={data?.entityId || oaOrganization?.entityId}
                     register={register}
                     error={errors?.organizationEntityId}
                     hidden
+                />)}
+
+                {data && (<InputField
+                    label="id"
+                    name="id"
+                    defaultValue={data?.id}
+                    register={register}
+                    error={errors?.id}
                 />)}
 
                 <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 max-w-5xl">
