@@ -85,7 +85,7 @@ const OrganizationPersonForm = ({
                 {data && (<InputField
                     label="organizationEntityId"
                     name="organizationEntityId"
-                    defaultValue={data?.organizationEntityId}
+                    defaultValue={data?.entityId}
                     register={register}
                     error={errors?.organizationEntityId}
                     hidden
@@ -94,15 +94,16 @@ const OrganizationPersonForm = ({
                 <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 max-w-5xl">
                     {/* Left Column */}
                     <div className="space-y-5">
-                        <InputField
-                            label="Organization"
-                            name="organizationId"
-                            type="select"
-                            defaultValue={oaOrganization? oaOrganization.name : data?.organization.name}
-                            register={register}
-                            error={errors?.organizationEntityId}
-                            disabled
-                        />
+                        <div className="flex flex-col gap-2 w-full">
+                            <label htmlFor="organizationId" className="text-xs text-gray-500">Organization</label>
+                            <input
+                                type="text"
+                                id="organizationId"
+                                defaultValue={oaOrganization? oaOrganization.name : data?.organization.name}
+                                disabled
+                                className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full focus:outline-none focus:ring-orange bg-gray-100 cursor-not-allowed"
+                            />
+                        </div>
                         <InputField
                             label="Contact"
                             name="personName"
@@ -139,7 +140,7 @@ const OrganizationPersonForm = ({
                             label="Effective Date"
                             name="effectiveDate"
                             type="datetime-local"
-                            defaultValue={formatDateTimeLocal(data?.effectiveDate) || new Date().toISOString().split('T')[0]}
+                            defaultValue={formatDateTimeLocal(data?.effectiveDate) || new Date().toISOString().slice(0,16)}
                             register={register}
                             error={errors?.effectiveDate}
                         />

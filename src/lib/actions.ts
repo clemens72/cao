@@ -4,6 +4,7 @@ import {
   ContactSchema,
   EventSchema,
   OrganizationSchema,
+  OrganizationPersonSchema,
   ProductSchema,
   TaskSchema,
 } from "./formValidationSchemas"
@@ -993,8 +994,18 @@ export const deleteEventProduct = async (
 
 export const createOrganizationPerson = async (
   currentState: CurrentState,
-  data: any) => {
+  data: OrganizationPersonSchema) => {
   try {
+    await prisma.organizationPerson.create({
+      data: {
+        organizationEntityId: data.organizationEntityId,
+        personEntityId: data.personEntityId,
+        effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : new Date(),
+        expirationDate: data.expirationDate ? new Date(data.expirationDate) : null,
+        isPrimary: data.isPrimary || false,
+        note: data.note || null,
+      },
+    });
     return { success: true, error: false }
   } catch (err) {
     console.log(err);
@@ -1004,9 +1015,21 @@ export const createOrganizationPerson = async (
 
 export const updateOrganizationPerson = async (
   currentState: CurrentState,
-  data: any
+  data: OrganizationPersonSchema & { id?: string }
 ) => {
   try {
+    if (!data.id) {
+      throw new Error("ID is required for update");
+    }
+    await prisma.organizationPerson.update({
+      where: { id: data.id },
+      data: {
+        effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : undefined,
+        expirationDate: data.expirationDate ? new Date(data.expirationDate) : null,
+        isPrimary: data.isPrimary || false,
+        note: data.note || null,
+      },
+    });
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -1020,6 +1043,9 @@ export const deleteOrganizationPerson = async (
 ) => {
   const id = data.get("id") as string;
   try {
+    await prisma.organizationPerson.delete({
+      where: { id },
+    });
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
