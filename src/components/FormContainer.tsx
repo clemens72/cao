@@ -141,10 +141,17 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
                     select: { id: true, description: true },
                     orderBy: { description: 'asc' }
                 });
+                const productTypes = await prisma.productType.findMany({
+                    where: {
+                        description: { not: { contains: "Entertainer" } }
+                    },
+                    select: { id: true, description: true },
+                    orderBy: { description: 'asc' }
+                });
                 relatedData = {
                     contacts: productContacts,
-                    electronicAddressTypes:
-                    productElectronicAddressTypes
+                    electronicAddressTypes: productElectronicAddressTypes,
+                    productTypes,
                 }
                 break;
 
@@ -166,17 +173,47 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
                     select: { id: true, description: true },
                     orderBy: { description: 'asc' }
                 });
+                const entertainerProductTypes = await prisma.productType.findMany({
+                    where: {
+                        description: { contains: "Entertainer" }
+                    },
+                    select: { id: true, description: true },
+                    orderBy: { description: 'asc' }
+                });
                 relatedData = {
                     contacts: entertainerContacts,
                     agents: entertainerAgents,
-                    electronicAddressTypes: entertainerElectronicAddressTypes
+                    electronicAddressTypes: entertainerElectronicAddressTypes,
+                    productTypes: entertainerProductTypes
                 }
                 break;
 
             case "eventProducts":
+                const productStatuses = await prisma.productStatus.findMany({
+                    select: { id: true, description: true },
+                    orderBy: { description: 'asc' }
+                });
+                relatedData = {
+                    productStatuses
+                }
                 break;
 
             case "organizationPersons":
+                const oaOrganization = await prisma.organization.findUnique({
+                    where: { entityId: String(data?.organizationEntityId) },
+                });
+                const oaPerson = await prisma.person.findUnique({
+                    where: { entityId: String(data?.personEntityId) },
+                });
+                const oaContacts = await prisma.person.findMany({
+                    select: { entityId: true, firstName: true, lastName: true },
+                    orderBy: { lastName: 'asc' }
+                });
+                relatedData = {
+                    oaOrganization,
+                    oaPerson,
+                    contacts: oaContacts
+                }
                 break;
 
             /*case "tasks":

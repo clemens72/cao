@@ -8,7 +8,7 @@ import { createEntertainer, updateEntertainer } from "@/lib/actions";
 import { Dispatch, SetStateAction, startTransition, useActionState, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import ClientSelector from "../ClientSelector";
+import ContactSelector from "../ContactSelector";
 
 const EntertainerForm = ({
     type,
@@ -33,6 +33,7 @@ const EntertainerForm = ({
 
     const [selectedBookingContactPersonId, setSelectedBookingContactPersonId] = useState<string>(data?.event?.billingContactPersonEntityId || "");
     const [selectedBookingContactOrganizationId, setSelectedBookingContactOrganizationId] = useState<string | null>(data?.event?.billingContactOrganizationEntityId || null);
+    const [selectedBookingContactId, setSelectedBookingContactId] = useState<string>(data?.product?.bookingContactPersonEntityId || "");
 
     const [state, formAction] = useActionState(
         type === "create" ? createEntertainer : updateEntertainer,
@@ -101,19 +102,15 @@ const EntertainerForm = ({
 
                         {/* Electronic Addresses */}
 
-                        <ClientSelector
+                        <ContactSelector
                             label="Booking Contact"
-                            selectorId="event-booking-contact"
-                            selectedPersonId={selectedBookingContactPersonId}
-                            selectedOrganizationId={selectedBookingContactOrganizationId}
-                            initialClientName={data.bookingContactOrg ? `${data.bookingContactOrg.name} - ${data.bookingContactPerson ? data.bookingContactPerson.firstName + " " + data.bookingContactPerson.lastName : ""}`.trim() : data.bookingContactPerson ? data.bookingContactPerson.firstName + " " + data.bookingContactPerson.lastName : ""}
-                            onClientSelect={(bookingPersonId, bookingOrganizationId) => {
-                                setSelectedBookingContactPersonId(bookingPersonId);
-                                setSelectedBookingContactOrganizationId(bookingOrganizationId);
-                                setValue("bookingContactPersonEntityId", bookingPersonId);
-                                setValue("bookingContactOrganizationEntityId", bookingOrganizationId || "");
+                            contacts={contacts}
+                            selectedContactId={selectedBookingContactId}
+                            onContactSelect={(bookingContactId) => {
+                                setSelectedBookingContactId(bookingContactId);
+                                setValue("bookingContactId", bookingContactId);
                             }}
-                            error={errors?.bookingContactPersonEntityId}
+                            error={errors?.bookingContactId}
                         />
 
                         {/* Phones */}
@@ -143,6 +140,28 @@ const EntertainerForm = ({
                     <div className="space-y-5">
 
                         {/* Product Types */}
+                        <div>
+                            <label className="block text-xs text-gray-600 font-medium mb-1.5">Product Type</label>
+                            <select
+                                className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
+                                {...register("productTypeId")}
+                                defaultValue={data?.product?.productTypeId || ""}
+                            >
+                                <option value="">
+                                    Select a type
+                                </option>
+                                {productTypes?.map((pType: { id: string; description: string }) => (
+                                    <option value={pType.id} key={pType.id}>
+                                        {pType.description}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.productTypeId?.message && (
+                                <p className="text-xs text-red-400">
+                                    {errors.productTypeId.message.toString()}
+                                </p>
+                            )}
+                        </div>
 
                         {/* Product Categories */}
 

@@ -8,7 +8,6 @@ import { createProduct, updateProduct } from "@/lib/actions";
 import { Dispatch, SetStateAction, startTransition, useActionState, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import ClientSelector from "../ClientSelector";
 import ContactSelector from "../ContactSelector";
 
 const ProductForm = ({
@@ -139,6 +138,28 @@ const ProductForm = ({
                     <div className="space-y-5">
 
                         {/* Product Types */}
+                        <div>
+                            <label className="block text-xs text-gray-600 font-medium mb-1.5">Product Type</label>
+                            <select
+                                className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-orange focus:border-orange"
+                                {...register("productTypeId")}
+                                defaultValue={data?.product?.productTypeId || ""}
+                            >
+                                <option value="">
+                                    Select a type
+                                </option>
+                                {productTypes?.map((pType: { id: string; description: string }) => (
+                                    <option value={pType.id} key={pType.id}>
+                                        {pType.description}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.productTypeId?.message && (
+                                <p className="text-xs text-red-400">
+                                    {errors.productTypeId.message.toString()}
+                                </p>
+                            )}
+                        </div>
 
                         {/* Product Categories */}
 

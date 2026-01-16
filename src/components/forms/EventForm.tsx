@@ -158,7 +158,14 @@ const EventForm = ({
 
                         <InputField label="Location" name="location" defaultValue={data?.event?.location} register={register} error={errors?.location} />
 
-                        <InputField label="Start Date" name="startDate" type="datetime-local" defaultValue={formatDateTimeLocal(data?.event?.startDate)} register={register} error={errors?.startDate} />
+                        <InputField
+                            label="Start Date"
+                            name="startDate"
+                            type="datetime-local"
+                            defaultValue={formatDateTimeLocal(data?.event?.startDate)}
+                            register={register}
+                            error={errors?.startDate}
+                        />
                         <InputField label="End Date" name="endDate" type="datetime-local" defaultValue={formatDateTimeLocal(data?.event?.endDate)} register={register} error={errors?.endDate} />
 
                         <div>

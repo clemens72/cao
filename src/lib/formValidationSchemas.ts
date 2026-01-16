@@ -110,7 +110,7 @@ export const productSchema = z.object({
     available: z.boolean(),
     note: z.string().optional(),
     productTypeId: z.string().min(1, { message: "Product Type is required!" }),
-    categories: z.array(z.string()).optional(),
+    //categories: z.array(z.string()).optional(),
     description: z.string().optional(),
 })
 
@@ -118,7 +118,7 @@ export type ProductSchema = z.infer<typeof productSchema>
 
 export const entertainerSchema = z.object({
     id: z.string().optional(),
-    name: z.string().optional(),
+    name: z.string().min(1, { message: "Name is required." }),
     electronicAddresses: z.array(z.object({
         id: z.string().optional(),
         electronicAddress: z.string(),
@@ -126,6 +126,7 @@ export const entertainerSchema = z.object({
     })).optional(),
     bookingContactPersonEntityId: z.string().optional(),
     bookingContactOrganizationEntityId: z.string().optional(),
+    bookingContactId: z.string().optional(),
     phones: z.array(z.object({
         id: z.string().optional(),
         phoneNumber: z.string(),
@@ -135,7 +136,7 @@ export const entertainerSchema = z.object({
     feePercent: z.string().optional(),
     available: z.string().optional(),
     note: z.string().optional(),
-    productTypeId: z.string().optional(),
+    productTypeId: z.string().min(1, { message: "Type is required!" }),
     categories: z.array(z.string()).optional(),
     description: z.string().optional(),
     bio: z.string().optional(),
@@ -204,6 +205,10 @@ export type EventProductSchema = z.infer<typeof eventProductSchema>
 export const organizationPersonSchema = z.object({
     organizationEntityId: z.string().min(1, { message: "Organization is required!" }),
     personEntityId: z.string().min(1, { message: "Person is required!" }),
+    effectiveDate: z.string().optional(),
+    expirationDate: z.string().optional(),
+    isPrimary: z.boolean().optional(),
+    note: z.string().optional(),
 
 })
 

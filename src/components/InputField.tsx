@@ -9,6 +9,7 @@ type InputFieldProps = {
     defaultValue?: string;
     error?: FieldError | Merge<FieldError, FieldErrorsImpl<{}>> | undefined;
     hidden?: boolean;
+    disabled?: boolean;
     inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
 }
 
@@ -20,15 +21,17 @@ const InputField = ({
     defaultValue,
     error,
     hidden,
+    disabled,
     inputProps,
 }: InputFieldProps) => {
     return (
         <div className={hidden ? "hidden" : "flex flex-col gap-2 w-full"}>
             <label className="text-xs text-gray-500">{label}</label>
             <input type={type} {...register(name)}
-                className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full focus:outline-none focus:ring-orange"
+                className={`ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full focus:outline-none focus:ring-orange ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 {...inputProps}
                 defaultValue={defaultValue}
+                disabled={disabled}
             />
             {error?.message && (
                 <p className="text-xs text-red-400">{error.message.toString()}</p>

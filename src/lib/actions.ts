@@ -715,6 +715,7 @@ export const createProduct = async (
   currentState: CurrentState,
   data: ProductSchema) => {
   try {
+    console.log("Creating product with data:", data);
     const entityType = await prisma.entityType.findFirst({
       where: { description: "Product" },
     });
@@ -731,7 +732,7 @@ export const createProduct = async (
         bookingContactPersonEntityId: data.bookingContactId || null,
         grossPrice: data.grossPrice,
         feePercent: data.feePercent,
-        available: data.available,
+        available: data.available || false,
         note: data.note,
         productTypeId: data.productTypeId,
         description: data.description,
@@ -773,7 +774,7 @@ export const updateProduct = async (
         bookingContactPersonEntityId: data.bookingContactId || null,
         grossPrice: data.grossPrice,
         feePercent: data.feePercent,
-        available: data.available,
+        available: data.available || false,
         note: data.note,
         productTypeId: data.productTypeId,
         description: data.description,
@@ -810,7 +811,7 @@ export const createEntertainer = async (
   data: ProductSchema) => {
   try {
     const entityType = await prisma.entityType.findFirst({
-      where: { description: "Product" },
+      where: { description: "Entertainer" },
     });
     const entity = await prisma.entity.create({
       data: {
@@ -822,12 +823,12 @@ export const createEntertainer = async (
       data: {
         entityId: entity.id,
         name: data.name,
-        bookingContactPersonEntityId: data.bookingContactId,
+        bookingContactPersonEntityId: data.bookingContactId || null,
         grossPrice: data.grossPrice,
         feePercent: data.feePercent,
-        available: data.available,
+        available: data.available || false,
         note: data.note,
-        productTypeId: data.productTypeId,
+        productTypeId: data.productTypeId || "",
         description: data.description,
       },
     });
@@ -863,10 +864,10 @@ export const updateEntertainer = async (
       },
       data: {
         name: data.name,
-        bookingContactPersonEntityId: data.bookingContactId,
+        bookingContactPersonEntityId: data.bookingContactId || null,
         grossPrice: data.grossPrice,
         feePercent: data.feePercent,
-        available: data.available,
+        available: data.available || false,
         note: data.note,
         productTypeId: data.productTypeId,
         description: data.description,

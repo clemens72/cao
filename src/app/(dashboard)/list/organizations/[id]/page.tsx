@@ -98,7 +98,8 @@ const SingleOrganizationPage = async ({
         resources: resources,
         agent: agent,
         organizationTypes: organizationTypesData,
-        dynamicListMembers: dynamicListMembersData
+        dynamicListMembers: dynamicListMembersData,
+        organizationContacts
     }
 
     const renderContacts = (item: OrganizationPerson) => (
@@ -330,7 +331,7 @@ const SingleOrganizationPage = async ({
             <div className="bg-white p-6 rounded-md shadow">
                 <div className="justify-between items-center mb-6 flex">
                     <h1 className="text-xl font-bold text-gray-800 mb-6">Contacts</h1>
-                    <FormContainer table="organizationPersons" type="create" data={{ eventEntityId: id }} />
+                    <FormContainer table="organizationPersons" type="create" data={data} />
                 </div>
                 <Table columns={[
                     { header: "Name", accessor: "name" },
